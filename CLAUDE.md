@@ -53,4 +53,4 @@ Consumers import it as `@hironytic/anatomist/style.css`.
 
 - **No bundled parser**: the framework receives already-parsed data structures; parsing is the consumer's responsibility.
 - **CSS Custom Properties for theming**: no CSS-in-JS, no external styling library. Consumers override variables in `:root`.
-- **Peer dependencies**: `react` and `react-dom` are peer deps so consumers use their own React instance.
+- **Peer dependencies**: `react` and `react-dom` are peer deps (`>=19`) so consumers use their own React instance.
