@@ -5,6 +5,7 @@ const ROW_HEIGHT_PX = 24;         // Must match .anatomist-hex-view__row { heigh
 const BUFFER_ROWS = 5;
 const OFFSET_LABEL_WIDTH_PX = 52; // Must match --anatomist-hex-view-offset-label-width in CSS
 const CELL_WIDTH_PX = 28;         // Must match --anatomist-hex-view-cell-width in CSS
+const OVERLAY_INSET_PX = 2;       // Must match --anatomist-hex-range-inset in CSS
 
 const COLUMN_HEADERS = Array.from({ length: BYTES_PER_ROW }, (_, i) =>
   '+' + i.toString(16).toUpperCase()
@@ -31,6 +32,8 @@ interface RangeOverlaySegment {
   isCurrent: boolean;
   /** Whether to render the current-range background fill. False for step-border segments. */
   showBackground: boolean;
+  top: number;
+  bottom: number;
   left: number;
   width: number;
   borderTop: boolean;
@@ -60,35 +63,46 @@ function computeRowOverlays(
     const isCurrent = range.id === currentRangeId;
 
     // Main segment: the body of the range on this row.
+    // Inset is applied only on sides that have a border, so adjacent ranges do not touch.
     const isFirstRow = rowIndex === R1;
     const isLastRow = rowIndex === R2;
     const colStart = isFirstRow ? C1 : 0;
     const colEnd = isLastRow ? C2 + 1 : BYTES_PER_ROW;
+    const topInset    = isFirstRow ? OVERLAY_INSET_PX : 0;
+    const bottomInset = isLastRow  ? OVERLAY_INSET_PX : 0;
+    const rawLeft  = OFFSET_LABEL_WIDTH_PX + colStart * CELL_WIDTH_PX;
+    const rawWidth = (colEnd - colStart) * CELL_WIDTH_PX;
     segments.push({
       key: String(range.id),
       isCurrent,
       showBackground: isCurrent,
-      left: OFFSET_LABEL_WIDTH_PX + colStart * CELL_WIDTH_PX,
-      width: (colEnd - colStart) * CELL_WIDTH_PX,
-      borderTop: isFirstRow,
+      top:    topInset,
+      bottom: bottomInset,
+      left:   rawLeft  + OVERLAY_INSET_PX,
+      width:  rawWidth - 2 * OVERLAY_INSET_PX,
+      borderTop:    isFirstRow,
       borderBottom: isLastRow,
-      borderLeft: true,
-      borderRight: true,
+      borderLeft:   true,
+      borderRight:  true,
     });
 
     // Step top border: on row R1+1, add a top border over cols 0 to C1-1.
     // This closes the upper-left "step" of the staircase outline.
+    // Horizontal edges are aligned with the adjacent main-segment borders so that
+    // corners connect cleanly without gaps or overhangs.
     if (isMultiRow && C1 > 0 && rowIndex === R1 + 1) {
       segments.push({
         key: `${range.id}_step_top`,
         isCurrent,
         showBackground: false,
-        left: OFFSET_LABEL_WIDTH_PX,
-        width: C1 * CELL_WIDTH_PX,
-        borderTop: true,
+        top:    0,                                          // no top inset — abuts row R1's bottom edge
+        bottom: 0,
+        left:   OFFSET_LABEL_WIDTH_PX + OVERLAY_INSET_PX, // aligns with this row's left border
+        width:  C1 * CELL_WIDTH_PX,                        // right edge aligns with row R1's left border
+        borderTop:    true,
         borderBottom: false,
-        borderLeft: false,
-        borderRight: false,
+        borderLeft:   false,
+        borderRight:  false,
       });
     }
 
@@ -99,12 +113,14 @@ function computeRowOverlays(
         key: `${range.id}_step_bottom`,
         isCurrent,
         showBackground: false,
-        left: OFFSET_LABEL_WIDTH_PX + (C2 + 1) * CELL_WIDTH_PX,
-        width: (BYTES_PER_ROW - 1 - C2) * CELL_WIDTH_PX,
-        borderTop: false,
+        top:    0,
+        bottom: 0,                                                              // no bottom inset — abuts row R2's top edge
+        left:   OFFSET_LABEL_WIDTH_PX + (C2 + 1) * CELL_WIDTH_PX - OVERLAY_INSET_PX, // aligns with row R2's right border
+        width:  (BYTES_PER_ROW - 1 - C2) * CELL_WIDTH_PX,                     // left edge aligns with row R2's right border
+        borderTop:    false,
         borderBottom: true,
-        borderLeft: false,
-        borderRight: false,
+        borderLeft:   false,
+        borderRight:  false,
       });
     }
   }
@@ -173,7 +189,7 @@ export function HexView({ data, ranges = [], currentRangeId }: HexViewProps) {
         <div
           key={seg.key}
           className={cls}
-          style={{ left: seg.left, width: seg.width }}
+          style={{ top: seg.top, bottom: seg.bottom, left: seg.left, width: seg.width }}
         />
       );
     });

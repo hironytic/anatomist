@@ -89,8 +89,6 @@
 
 .anatomist-hex-view__range-overlay {
   position: absolute;
-  top: 0;
-  height: 100%;
   pointer-events: none;
   box-sizing: border-box;
   border-style: solid;
