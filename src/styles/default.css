@@ -120,3 +120,99 @@
 .anatomist-hex-view__range-overlay--current-bg {
   background-color: var(--anatomist-hex-range-current-bg);
 }
+
+/* RangeList */
+
+:root {
+  --anatomist-range-list-bg: var(--anatomist-hex-view-bg, #1e1e1e);
+  --anatomist-range-list-fg: var(--anatomist-hex-view-fg, #d4d4d4);
+  --anatomist-range-list-font-family: var(
+    --anatomist-hex-view-font-family,
+    ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Consolas,
+    "DejaVu Sans Mono", monospace
+  );
+  --anatomist-range-list-font-size: var(--anatomist-hex-view-font-size, 13px);
+  --anatomist-range-list-border-color: var(--anatomist-hex-view-border-color, #3c3c3c);
+  --anatomist-range-list-item-height: 28px;
+  --anatomist-range-list-offset-fg: var(--anatomist-hex-view-offset-fg, #569cd6);
+  --anatomist-range-list-selected-bg: rgba(240, 165, 0, 0.15);
+  --anatomist-range-list-selected-border: #f0a500;
+  --anatomist-range-list-jump-fg: #858585;
+  --anatomist-range-list-jump-hover-fg: #d4d4d4;
+}
+
+.anatomist-range-list {
+  overflow-y: auto;
+  height: 100%;
+  background-color: var(--anatomist-range-list-bg);
+  color: var(--anatomist-range-list-fg);
+  font-family: var(--anatomist-range-list-font-family);
+  font-size: var(--anatomist-range-list-font-size);
+  user-select: none;
+}
+
+.anatomist-range-list__item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: var(--anatomist-range-list-item-height);
+  padding: 0 8px;
+  box-sizing: border-box;
+  border-bottom: 1px solid var(--anatomist-range-list-border-color);
+  border-left: 2px solid transparent;
+  gap: 8px;
+  cursor: default;
+}
+
+.anatomist-range-list__item--selectable {
+  cursor: pointer;
+}
+
+.anatomist-range-list__item--selectable:hover {
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
+.anatomist-range-list__item--selected {
+  background-color: var(--anatomist-range-list-selected-bg);
+  border-left-color: var(--anatomist-range-list-selected-border);
+}
+
+.anatomist-range-list__offset {
+  flex-shrink: 0;
+  color: var(--anatomist-range-list-offset-fg);
+  white-space: nowrap;
+}
+
+.anatomist-range-list__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.anatomist-range-list__value {
+  flex-shrink: 0;
+  max-width: 40%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: right;
+  opacity: 0.75;
+}
+
+.anatomist-range-list__jump {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  padding: 0 2px;
+  cursor: pointer;
+  color: var(--anatomist-range-list-jump-fg);
+  font-family: inherit;
+  font-size: inherit;
+  line-height: 1;
+}
+
+.anatomist-range-list__jump:hover {
+  color: var(--anatomist-range-list-jump-hover-fg);
+}

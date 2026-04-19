@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { HexView } from '@hironytic/anatomist';
-import type { HexRange } from '@hironytic/anatomist';
+import { HexView, RangeList } from '@hironytic/anatomist';
+import type { HexRange, RangeListItem } from '@hironytic/anatomist';
 import '@hironytic/anatomist/style.css';
 
 function makeData(size: number): Uint8Array {
@@ -27,11 +27,25 @@ const RANGE_LABELS: Record<string, string> = {
   chunk3: 'Chunk 3 (100–199)',
 };
 
+const DEMO_ITEMS: RangeListItem[] = [
+  { id: 'magic',   startOffset: 0,  endOffset: 4,  name: 'Magic Number',  value: '0D 0A 1A 0A' },
+  { id: 'width',   startOffset: 4,  endOffset: 8,  name: 'Width',         value: '256 px'       },
+  { id: 'height',  startOffset: 8,  endOffset: 12, name: 'Height',        value: '256 px'       },
+  { id: 'depth',   startOffset: 12, endOffset: 13, name: 'Bit Depth',     value: '8'            },
+  { id: 'ctype',   startOffset: 13, endOffset: 14, name: 'Color Type',    value: '2 (RGB)'      },
+  { id: 'comp',    startOffset: 14, endOffset: 15, name: 'Compression',   value: '0'            },
+  { id: 'filter',  startOffset: 15, endOffset: 16, name: 'Filter Method', value: '0'            },
+  { id: 'interlace', startOffset: 16, endOffset: 17, name: 'Interlace',   value: '0 (None)'     },
+  { id: 'crc',     startOffset: 17, endOffset: 21, name: 'CRC',           value: '0x2BD3B498'   },
+  { id: 'extra',   startOffset: 21, endOffset: 30, name: 'Reserved',      value: '(9 bytes)'    },
+];
+
 const TEAL = '#4ec9b0';
 const AMBER = '#f0a500';
 
 export function App() {
   const [currentRangeId, setCurrentRangeId] = useState<string | undefined>('header');
+  const [selectedItemId, setSelectedItemId] = useState<string | undefined>('magic');
 
   return (
     <div
@@ -85,8 +99,18 @@ export function App() {
           None
         </button>
       </div>
-      <div style={{ flex: 1, minHeight: 0 }}>
-        <HexView data={DEMO_DATA} ranges={DEMO_RANGES} currentRangeId={currentRangeId} />
+      <div style={{ flex: 1, minHeight: 0, display: 'flex', gap: '16px' }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <HexView data={DEMO_DATA} ranges={DEMO_RANGES} currentRangeId={currentRangeId} />
+        </div>
+        <div style={{ width: '320px', flexShrink: 0 }}>
+          <RangeList
+            items={DEMO_ITEMS}
+            selectedItemId={selectedItemId}
+            onItemSelect={id => setSelectedItemId(id as string)}
+            onItemJump={id => alert(`Jump to: ${id}`)}
+          />
+        </div>
       </div>
     </div>
   );
