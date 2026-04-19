@@ -18,7 +18,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsup && cp src/styles/default.css dist/style.css",
+    "build": "tsup",
     "dev": "tsup --watch",
     "sandbox": "npm run dev --prefix sandbox",
     "sandbox:build": "npm run build --prefix sandbox",
@@ -31,6 +31,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",
+    "@types/node": "^25.6.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "eslint": "^9.0.0",
