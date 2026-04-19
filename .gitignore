@@ -56,12 +56,12 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-###
+### Project specific ignores
 
 node_modules/
 dist/
 sandbox/node_modules/
 sandbox/dist/
-
+.idea/
 *.local.md
 
