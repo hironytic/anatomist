@@ -15,6 +15,12 @@
   --anatomist-hex-view-offset-fg: #569cd6;
   --anatomist-hex-view-offset-label-width: 52px;
   --anatomist-hex-view-cell-width: 28px;
+
+  /* HexView — Range overlay */
+  --anatomist-hex-range-border-color: #4ec9b0;
+  --anatomist-hex-range-border-width: 1px;
+  --anatomist-hex-range-current-border-color: #f0a500;
+  --anatomist-hex-range-current-bg: rgba(240, 165, 0, 0.15);
 }
 
 /* HexView */
@@ -59,6 +65,7 @@
   height: 24px; /* Must equal ROW_HEIGHT_PX constant in HexView.tsx */
   line-height: 24px;
   overflow: hidden;
+  position: relative;
 }
 
 .anatomist-hex-view__offset-label {
@@ -78,4 +85,40 @@
 
 .anatomist-hex-view__cell--empty {
   /* Keeps column spacing intact for incomplete last rows */
+}
+
+.anatomist-hex-view__range-overlay {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  pointer-events: none;
+  box-sizing: border-box;
+  border-style: solid;
+  border-color: var(--anatomist-hex-range-border-color);
+  border-width: 0;
+  z-index: 1;
+}
+
+.anatomist-hex-view__range-overlay--border-top {
+  border-top-width: var(--anatomist-hex-range-border-width);
+}
+
+.anatomist-hex-view__range-overlay--border-bottom {
+  border-bottom-width: var(--anatomist-hex-range-border-width);
+}
+
+.anatomist-hex-view__range-overlay--border-left {
+  border-left-width: var(--anatomist-hex-range-border-width);
+}
+
+.anatomist-hex-view__range-overlay--border-right {
+  border-right-width: var(--anatomist-hex-range-border-width);
+}
+
+.anatomist-hex-view__range-overlay--current {
+  border-color: var(--anatomist-hex-range-current-border-color);
+}
+
+.anatomist-hex-view__range-overlay--current-bg {
+  background-color: var(--anatomist-hex-range-current-bg);
 }
