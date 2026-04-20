@@ -15,16 +15,40 @@ const DEMO_DATA = makeData(100_000);
 
 const DEMO_RANGES: HexRange[] = [
   { id: 'header', startOffset: 0,   endOffset: 4   },
-  { id: 'chunk1', startOffset: 10,  endOffset: 52  },
+  {
+    id: 'chunk1', startOffset: 10, endOffset: 52,
+    children: [
+      { id: 'chunk1_a', startOffset: 10, endOffset: 26 },
+      { id: 'chunk1_b', startOffset: 26, endOffset: 52 },
+    ],
+  },
   { id: 'chunk2', startOffset: 80,  endOffset: 96  },
-  { id: 'chunk3', startOffset: 100, endOffset: 200 },
+  {
+    id: 'chunk3', startOffset: 100, endOffset: 200,
+    children: [
+      {
+        id: 'chunk3_a', startOffset: 100, endOffset: 148,
+        children: [
+          { id: 'chunk3_a_i',  startOffset: 100, endOffset: 116 },
+          { id: 'chunk3_a_ii', startOffset: 116, endOffset: 148 },
+        ],
+      },
+      { id: 'chunk3_b', startOffset: 148, endOffset: 200 },
+    ],
+  },
 ];
 
 const RANGE_LABELS: Record<string, string> = {
-  header: 'Header (0–3)',
-  chunk1: 'Chunk 1 (10–51)',
-  chunk2: 'Chunk 2 (80–95)',
-  chunk3: 'Chunk 3 (100–199)',
+  header:       'Header (0–3)',
+  chunk1:       'Chunk 1 (10–51)',
+  chunk1_a:     '  Chunk 1-A (10–25)',
+  chunk1_b:     '  Chunk 1-B (26–51)',
+  chunk2:       'Chunk 2 (80–95)',
+  chunk3:       'Chunk 3 (100–199)',
+  chunk3_a:     '  Chunk 3-A (100–147)',
+  chunk3_a_i:   '    Chunk 3-A-i (100–115)',
+  chunk3_a_ii:  '    Chunk 3-A-ii (116–147)',
+  chunk3_b:     '  Chunk 3-B (148–199)',
 };
 
 const DEMO_ITEMS: RangeListItem[] = [
@@ -63,12 +87,12 @@ export function App() {
         Anatomist Sandbox — HexView ({DEMO_DATA.length.toLocaleString()} bytes)
       </h1>
       <div style={{ display: 'flex', gap: '8px', marginBottom: '8px', flexWrap: 'wrap' }}>
-        {DEMO_RANGES.map(r => {
-          const isCurrent = currentRangeId === r.id;
+        {Object.keys(RANGE_LABELS).map(id => {
+          const isCurrent = currentRangeId === id;
           return (
             <button
-              key={r.id}
-              onClick={() => setCurrentRangeId(r.id as string)}
+              key={id}
+              onClick={() => setCurrentRangeId(id)}
               style={{
                 padding: '4px 10px',
                 fontSize: '12px',
@@ -78,9 +102,10 @@ export function App() {
                 backgroundColor: isCurrent ? 'rgba(240, 165, 0, 0.15)' : 'transparent',
                 color: '#d4d4d4',
                 borderRadius: '3px',
+                fontFamily: 'monospace',
               }}
             >
-              {RANGE_LABELS[r.id as string]}
+              {RANGE_LABELS[id]}
             </button>
           );
         })}

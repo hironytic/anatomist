@@ -64,7 +64,7 @@
   flex-direction: row;
   height: 24px; /* Must equal ROW_HEIGHT_PX constant in HexView.tsx */
   line-height: 24px;
-  overflow: hidden;
+  overflow: visible;
   position: relative;
 }
 

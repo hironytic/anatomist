@@ -18,6 +18,8 @@ export interface HexRange {
   startOffset: number;
   /** One past the last byte of the range (exclusive). */
   endOffset: number;
+  /** Nested sub-ranges. Offsets are absolute (from file start), same as the parent. */
+  children?: HexRange[];
 }
 
 export interface HexViewProps {
@@ -25,6 +27,21 @@ export interface HexViewProps {
   ranges?: HexRange[];
   /** The id of the range to highlight as "current" (accent border + background fill). Undefined means no range is current. */
   currentRangeId?: string | number;
+}
+
+interface FlatRange {
+  range: HexRange;
+  depth: number;
+}
+
+function flattenRanges(ranges: HexRange[], depth: number): FlatRange[] {
+  return ranges.flatMap(range => {
+    const result: FlatRange[] = [{ range, depth }];
+    if (range.children && range.children.length > 0) {
+      result.push(...flattenRanges(range.children, depth + 1));
+    }
+    return result;
+  });
 }
 
 interface RangeOverlaySegment {
@@ -44,17 +61,18 @@ interface RangeOverlaySegment {
 
 function computeRowOverlays(
   rowIndex: number,
-  ranges: HexRange[],
+  flatRanges: FlatRange[],
   currentRangeId: string | number | undefined,
 ): RangeOverlaySegment[] {
   const rowStart = rowIndex * BYTES_PER_ROW;
   const rowEnd = rowStart + BYTES_PER_ROW;
   const segments: RangeOverlaySegment[] = [];
 
-  for (const range of ranges) {
+  for (const { range, depth } of flatRanges) {
     if (range.startOffset >= range.endOffset) continue;
     if (range.endOffset <= rowStart || range.startOffset >= rowEnd) continue;
 
+    const inset = (depth + 1) * OVERLAY_INSET_PX;
     const R1 = Math.floor(range.startOffset / BYTES_PER_ROW);
     const C1 = range.startOffset % BYTES_PER_ROW;
     const R2 = Math.floor((range.endOffset - 1) / BYTES_PER_ROW);
@@ -68,8 +86,13 @@ function computeRowOverlays(
     const isLastRow = rowIndex === R2;
     const colStart = isFirstRow ? C1 : 0;
     const colEnd = isLastRow ? C2 + 1 : BYTES_PER_ROW;
-    const topInset    = isFirstRow ? OVERLAY_INSET_PX : 0;
-    const bottomInset = isLastRow  ? OVERLAY_INSET_PX : 0;
+    const depthOffset = inset - OVERLAY_INSET_PX; // depth * OVERLAY_INSET_PX
+    const topInset    = isFirstRow ? inset
+                      : (isLastRow  ? -depthOffset
+                      : (isMultiRow && C1 > 0 && rowIndex === R1 + 1 ? depthOffset : 0));
+    const bottomInset = isLastRow  ? inset
+                      : (isFirstRow ? -depthOffset
+                      : (isMultiRow && C2 < BYTES_PER_ROW - 1 && rowIndex === R2 - 1 ? depthOffset : 0));
     const rawLeft  = OFFSET_LABEL_WIDTH_PX + colStart * CELL_WIDTH_PX;
     const rawWidth = (colEnd - colStart) * CELL_WIDTH_PX;
     segments.push({
@@ -78,8 +101,8 @@ function computeRowOverlays(
       showBackground: isCurrent,
       top:    topInset,
       bottom: bottomInset,
-      left:   rawLeft  + OVERLAY_INSET_PX,
-      width:  rawWidth - 2 * OVERLAY_INSET_PX,
+      left:   rawLeft  + inset,
+      width:  rawWidth - 2 * inset,
       borderTop:    isFirstRow,
       borderBottom: isLastRow,
       borderLeft:   true,
@@ -88,17 +111,19 @@ function computeRowOverlays(
 
     // Step top border: on row R1+1, add a top border over cols 0 to C1-1.
     // This closes the upper-left "step" of the staircase outline.
-    // Horizontal edges are aligned with the adjacent main-segment borders so that
-    // corners connect cleanly without gaps or overhangs.
+    // For depth > 0, a positive `top` shifts the border downward inside row R1+1 so that
+    // the border appears depth levels below the row top (i.e. more "inward"). The row R1
+    // main segment extends its bottom by the same depthOffset to meet it. Corners align
+    // with adjacent main-segment borders. Requires overflow: visible on the row.
     if (isMultiRow && C1 > 0 && rowIndex === R1 + 1) {
       segments.push({
         key: `${range.id}_step_top`,
         isCurrent,
         showBackground: false,
-        top:    0,                                          // no top inset — abuts row R1's bottom edge
+        top:    depthOffset,
         bottom: 0,
-        left:   OFFSET_LABEL_WIDTH_PX + OVERLAY_INSET_PX, // aligns with this row's left border
-        width:  C1 * CELL_WIDTH_PX,                        // right edge aligns with row R1's left border
+        left:   OFFSET_LABEL_WIDTH_PX + inset,  // aligns with this row's left border
+        width:  C1 * CELL_WIDTH_PX,              // right edge aligns with row R1's left border
         borderTop:    true,
         borderBottom: false,
         borderLeft:   false,
@@ -108,15 +133,19 @@ function computeRowOverlays(
 
     // Step bottom border: on row R2-1, add a bottom border over cols C2+1 to 15.
     // This closes the lower-right "step" of the staircase outline.
+    // For depth > 0, a positive `bottom` shifts the border upward inside row R2-1 so that
+    // the border appears depth levels above the row bottom (i.e. more "inward"). The row R2
+    // main segment extends its top by the same depthOffset to meet it. Corners align with
+    // adjacent main-segment borders. Requires overflow: visible on the row.
     if (isMultiRow && C2 < BYTES_PER_ROW - 1 && rowIndex === R2 - 1) {
       segments.push({
         key: `${range.id}_step_bottom`,
         isCurrent,
         showBackground: false,
         top:    0,
-        bottom: 0,                                                              // no bottom inset — abuts row R2's top edge
-        left:   OFFSET_LABEL_WIDTH_PX + (C2 + 1) * CELL_WIDTH_PX - OVERLAY_INSET_PX, // aligns with row R2's right border
-        width:  (BYTES_PER_ROW - 1 - C2) * CELL_WIDTH_PX,                     // left edge aligns with row R2's right border
+        bottom: depthOffset,
+        left:   OFFSET_LABEL_WIDTH_PX + (C2 + 1) * CELL_WIDTH_PX - inset, // aligns with row R2's right border
+        width:  (BYTES_PER_ROW - 1 - C2) * CELL_WIDTH_PX,                 // left edge aligns with row R2's right border
         borderTop:    false,
         borderBottom: true,
         borderLeft:   false,
@@ -153,6 +182,8 @@ export function HexView({ data, ranges = [], currentRangeId }: HexViewProps) {
   const topSpacerHeight = startRow * ROW_HEIGHT_PX;
   const bottomSpacerHeight = Math.max(0, (totalRows - 1 - endRow) * ROW_HEIGHT_PX);
 
+  const flatRanges = flattenRanges(ranges, 0);
+
   const rows = [];
   for (let rowIndex = startRow; rowIndex <= endRow; rowIndex++) {
     const baseByteIndex = rowIndex * BYTES_PER_ROW;
@@ -174,7 +205,7 @@ export function HexView({ data, ranges = [], currentRangeId }: HexViewProps) {
       }
     }
 
-    const overlaySegments = computeRowOverlays(rowIndex, ranges, currentRangeId);
+    const overlaySegments = computeRowOverlays(rowIndex, flatRanges, currentRangeId);
     const overlays = overlaySegments.map(seg => {
       const cls = [
         'anatomist-hex-view__range-overlay',
