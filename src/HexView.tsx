@@ -80,50 +80,59 @@ function computeRowOverlays(
     const isMultiRow = R1 !== R2;
     const isCurrent = range.id === currentRangeId;
 
-    // Main segment: the body of the range on this row.
-    // Inset is applied only on sides that have a border, so adjacent ranges do not touch.
     const isFirstRow = rowIndex === R1;
     const isLastRow = rowIndex === R2;
-    const colStart = isFirstRow ? C1 : 0;
-    const colEnd = isLastRow ? C2 + 1 : BYTES_PER_ROW;
-    const depthOffset = inset - OVERLAY_INSET_PX; // depth * OVERLAY_INSET_PX
-    const topInset    = isFirstRow ? inset
-                      : (isLastRow  ? -depthOffset
-                      : (isMultiRow && C1 > 0 && rowIndex === R1 + 1 ? depthOffset : 0));
-    const bottomInset = isLastRow  ? inset
-                      : (isFirstRow ? -depthOffset
-                      : (isMultiRow && C2 < BYTES_PER_ROW - 1 && rowIndex === R2 - 1 ? depthOffset : 0));
-    const rawLeft  = OFFSET_LABEL_WIDTH_PX + colStart * CELL_WIDTH_PX;
-    const rawWidth = (colEnd - colStart) * CELL_WIDTH_PX;
+    const cL = isFirstRow ? C1 : 0;
+    const cR = isLastRow ? C2 : BYTES_PER_ROW - 1;
+
+    // A 2-row range where the start column is to the right of the end column has no
+    // horizontal overlap between rows, so it renders as two independent rectangles.
+    const isSplit = R2 === R1 + 1 && C1 > C2;
+
+    // Main body: carries left/right borders (always) and top/bottom borders on first/last rows.
+    // For staircase ranges, the first row extends below by -inset and the last row extends
+    // above by -inset so that the step borders connect flush to the vertical borders.
+    // The row just below R1 (if C1>0) and the row just above R2 (if C2<15) shift their
+    // top/bottom by inset so the vertical border begins/ends exactly at the step border.
+    // For split ranges each row is a self-contained rectangle with all four borders.
+    const top    = isSplit ? inset
+                 : isFirstRow ? inset
+                 : (isLastRow && isMultiRow) ? -inset
+                 : (isMultiRow && C1 > 0 && rowIndex === R1 + 1) ? inset
+                 : 0;
+    const bottom = isSplit ? inset
+                 : isLastRow ? inset
+                 : (isFirstRow && isMultiRow) ? -inset
+                 : (isMultiRow && C2 < BYTES_PER_ROW - 1 && rowIndex === R2 - 1) ? inset
+                 : 0;
     segments.push({
       key: String(range.id),
       isCurrent,
       showBackground: isCurrent,
-      top:    topInset,
-      bottom: bottomInset,
-      left:   rawLeft  + inset,
-      width:  rawWidth - 2 * inset,
-      borderTop:    isFirstRow,
-      borderBottom: isLastRow,
+      top,
+      bottom,
+      left:  OFFSET_LABEL_WIDTH_PX + cL * CELL_WIDTH_PX + inset,
+      width: (cR - cL + 1) * CELL_WIDTH_PX - 2 * inset,
+      borderTop:    isSplit || isFirstRow,
+      borderBottom: isSplit || isLastRow,
       borderLeft:   true,
       borderRight:  true,
     });
 
-    // Step top border: on row R1+1, add a top border over cols 0 to C1-1.
-    // This closes the upper-left "step" of the staircase outline.
-    // For depth > 0, a positive `top` shifts the border downward inside row R1+1 so that
-    // the border appears depth levels below the row top (i.e. more "inward"). The row R1
-    // main segment extends its bottom by the same depthOffset to meet it. Corners align
-    // with adjacent main-segment borders. Requires overflow: visible on the row.
-    if (isMultiRow && C1 > 0 && rowIndex === R1 + 1) {
+    // Step borders are only needed for staircase (non-split) shapes.
+
+    // Step top: on row R1+1, top border spanning cols [0, C1-1].
+    // Placed at top=inset so it is uniformly inset from the row boundary.
+    // Its right end aligns with R1's left border; R1's bottom:-inset extension meets it there.
+    if (!isSplit && isMultiRow && C1 > 0 && rowIndex === R1 + 1) {
       segments.push({
         key: `${range.id}_step_top`,
         isCurrent,
         showBackground: false,
-        top:    depthOffset,
+        top:    inset,
         bottom: 0,
-        left:   OFFSET_LABEL_WIDTH_PX + inset,  // aligns with this row's left border
-        width:  C1 * CELL_WIDTH_PX,              // right edge aligns with row R1's left border
+        left:   OFFSET_LABEL_WIDTH_PX + inset,
+        width:  C1 * CELL_WIDTH_PX,
         borderTop:    true,
         borderBottom: false,
         borderLeft:   false,
@@ -131,21 +140,18 @@ function computeRowOverlays(
       });
     }
 
-    // Step bottom border: on row R2-1, add a bottom border over cols C2+1 to 15.
-    // This closes the lower-right "step" of the staircase outline.
-    // For depth > 0, a positive `bottom` shifts the border upward inside row R2-1 so that
-    // the border appears depth levels above the row bottom (i.e. more "inward"). The row R2
-    // main segment extends its top by the same depthOffset to meet it. Corners align with
-    // adjacent main-segment borders. Requires overflow: visible on the row.
-    if (isMultiRow && C2 < BYTES_PER_ROW - 1 && rowIndex === R2 - 1) {
+    // Step bottom: on row R2-1, bottom border spanning cols [C2+1, 15].
+    // Placed at bottom=inset so it is uniformly inset from the row boundary.
+    // Its left end aligns with R2's right border; R2's top:-inset extension meets it there.
+    if (!isSplit && isMultiRow && C2 < BYTES_PER_ROW - 1 && rowIndex === R2 - 1) {
       segments.push({
         key: `${range.id}_step_bottom`,
         isCurrent,
         showBackground: false,
         top:    0,
-        bottom: depthOffset,
-        left:   OFFSET_LABEL_WIDTH_PX + (C2 + 1) * CELL_WIDTH_PX - inset, // aligns with row R2's right border
-        width:  (BYTES_PER_ROW - 1 - C2) * CELL_WIDTH_PX,                 // left edge aligns with row R2's right border
+        bottom: inset,
+        left:   OFFSET_LABEL_WIDTH_PX + (C2 + 1) * CELL_WIDTH_PX - inset,
+        width:  (BYTES_PER_ROW - 1 - C2) * CELL_WIDTH_PX,
         borderTop:    false,
         borderBottom: true,
         borderLeft:   false,
