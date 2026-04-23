@@ -19,8 +19,8 @@
   /* HexView — Range overlay */
   --anatomist-hex-range-border-color: #4ec9b0;
   --anatomist-hex-range-border-width: 1px;
-  --anatomist-hex-range-current-border-color: #f0a500;
-  --anatomist-hex-range-current-bg: rgba(240, 165, 0, 0.15);
+  --anatomist-hex-range-primary-border-color: #f0a500;
+  --anatomist-hex-range-primary-bg: rgba(240, 165, 0, 0.15);
 }
 
 /* HexView */
@@ -69,6 +69,8 @@
 }
 
 .anatomist-hex-view__offset-label {
+  position: relative;
+  z-index: 1;
   width: var(--anatomist-hex-view-offset-label-width);
   flex-shrink: 0;
   box-sizing: border-box;
@@ -78,6 +80,8 @@
 }
 
 .anatomist-hex-view__cell {
+  position: relative;
+  z-index: 1;
   width: var(--anatomist-hex-view-cell-width);
   flex-shrink: 0;
   text-align: center;
@@ -113,12 +117,14 @@
   border-right-width: var(--anatomist-hex-range-border-width);
 }
 
-.anatomist-hex-view__range-overlay--current {
-  border-color: var(--anatomist-hex-range-current-border-color);
+.anatomist-hex-view__range-overlay--primary {
+  z-index: 1;
+  border-color: var(--anatomist-hex-range-primary-border-color);
 }
 
-.anatomist-hex-view__range-overlay--current-bg {
-  background-color: var(--anatomist-hex-range-current-bg);
+.anatomist-hex-view__range-overlay--primary-bg {
+  z-index: 0;
+  background-color: var(--anatomist-hex-range-primary-bg);
 }
 
 /* RangeList */

@@ -13,62 +13,37 @@ function makeData(size: number): Uint8Array {
 
 const DEMO_DATA = makeData(100_000);
 
-const DEMO_RANGES: HexRange[] = [
-  { id: 'header', startOffset: 0,   endOffset: 4   },
-  {
-    id: 'chunk1', startOffset: 10, endOffset: 52,
-    children: [
-      { id: 'chunk1_a', startOffset: 10, endOffset: 26 },
-      { id: 'chunk1_b', startOffset: 26, endOffset: 52 },
-    ],
-  },
-  { id: 'chunk2', startOffset: 80,  endOffset: 96  },
-  {
-    id: 'chunk3', startOffset: 100, endOffset: 200,
-    children: [
-      {
-        id: 'chunk3_a', startOffset: 100, endOffset: 148,
-        children: [
-          { id: 'chunk3_a_i',  startOffset: 100, endOffset: 116 },
-          { id: 'chunk3_a_ii', startOffset: 116, endOffset: 148 },
-        ],
-      },
-      { id: 'chunk3_b', startOffset: 148, endOffset: 200 },
-    ],
-  },
+interface DemoRangeEntry {
+  range: HexRange;
+  label: string;
+}
+
+const DEMO_RANGE_ENTRIES: DemoRangeEntry[] = [
+  { range: { startOffset: 0,   endOffset: 4   }, label: 'Header (0–3)'      },
+  { range: { startOffset: 10,  endOffset: 52  }, label: 'Chunk 1 (10–51)'   },
+  { range: { startOffset: 80,  endOffset: 96  }, label: 'Chunk 2 (80–95)'   },
+  { range: { startOffset: 100, endOffset: 200 }, label: 'Chunk 3 (100–199)' },
+  { range: { startOffset: 200, endOffset: 211 }, label: 'Chunk 4 (200–210)' },
 ];
 
-const RANGE_LABELS: Record<string, string> = {
-  header:       'Header (0–3)',
-  chunk1:       'Chunk 1 (10–51)',
-  chunk1_a:     '  Chunk 1-A (10–25)',
-  chunk1_b:     '  Chunk 1-B (26–51)',
-  chunk2:       'Chunk 2 (80–95)',
-  chunk3:       'Chunk 3 (100–199)',
-  chunk3_a:     '  Chunk 3-A (100–147)',
-  chunk3_a_i:   '    Chunk 3-A-i (100–115)',
-  chunk3_a_ii:  '    Chunk 3-A-ii (116–147)',
-  chunk3_b:     '  Chunk 3-B (148–199)',
-};
-
 const DEMO_ITEMS: RangeListItem[] = [
-  { id: 'magic',   startOffset: 0,  endOffset: 4,  name: 'Magic Number',  value: '0D 0A 1A 0A' },
-  { id: 'width',   startOffset: 4,  endOffset: 8,  name: 'Width',         value: '256 px'       },
-  { id: 'height',  startOffset: 8,  endOffset: 12, name: 'Height',        value: '256 px'       },
-  { id: 'depth',   startOffset: 12, endOffset: 13, name: 'Bit Depth',     value: '8'            },
-  { id: 'ctype',   startOffset: 13, endOffset: 14, name: 'Color Type',    value: '2 (RGB)'      },
-  { id: 'comp',    startOffset: 14, endOffset: 15, name: 'Compression',   value: '0'            },
-  { id: 'filter',  startOffset: 15, endOffset: 16, name: 'Filter Method', value: '0'            },
-  { id: 'interlace', startOffset: 16, endOffset: 17, name: 'Interlace',   value: '0 (None)'     },
-  { id: 'crc',     startOffset: 17, endOffset: 21, name: 'CRC',           value: '0x2BD3B498'   },
-  { id: 'extra',   startOffset: 21, endOffset: 30, name: 'Reserved',      value: '(9 bytes)'    },
+  { id: 'magic',     startOffset: 0,  endOffset: 4,  name: 'Magic Number',  value: '0D 0A 1A 0A' },
+  { id: 'width',     startOffset: 4,  endOffset: 8,  name: 'Width',         value: '256 px'       },
+  { id: 'height',    startOffset: 8,  endOffset: 12, name: 'Height',        value: '256 px'       },
+  { id: 'depth',     startOffset: 12, endOffset: 13, name: 'Bit Depth',     value: '8'            },
+  { id: 'ctype',     startOffset: 13, endOffset: 14, name: 'Color Type',    value: '2 (RGB)'      },
+  { id: 'comp',      startOffset: 14, endOffset: 15, name: 'Compression',   value: '0'            },
+  { id: 'filter',    startOffset: 15, endOffset: 16, name: 'Filter Method', value: '0'            },
+  { id: 'interlace', startOffset: 16, endOffset: 17, name: 'Interlace',     value: '0 (None)'     },
+  { id: 'crc',       startOffset: 17, endOffset: 21, name: 'CRC',           value: '0x2BD3B498'   },
+  { id: 'extra',     startOffset: 21, endOffset: 30, name: 'Reserved',      value: '(9 bytes)'    },
 ];
 
 const TEAL = '#4ec9b0';
 const AMBER = '#f0a500';
 
 export function App() {
-  const [currentRangeId, setCurrentRangeId] = useState<string | undefined>('header');
+  const [focusedRange, setFocusedRange] = useState<HexRange | undefined>(DEMO_RANGE_ENTRIES[0].range);
   const [selectedItemId, setSelectedItemId] = useState<string | undefined>('magic');
 
   return (
@@ -87,36 +62,36 @@ export function App() {
         Anatomist Sandbox — HexView ({DEMO_DATA.length.toLocaleString()} bytes)
       </h1>
       <div style={{ display: 'flex', gap: '8px', marginBottom: '8px', flexWrap: 'wrap' }}>
-        {Object.keys(RANGE_LABELS).map(id => {
-          const isCurrent = currentRangeId === id;
+        {DEMO_RANGE_ENTRIES.map((entry, i) => {
+          const isFocused = focusedRange === entry.range;
           return (
             <button
-              key={id}
-              onClick={() => setCurrentRangeId(id)}
+              key={i}
+              onClick={() => setFocusedRange(entry.range)}
               style={{
                 padding: '4px 10px',
                 fontSize: '12px',
                 cursor: 'pointer',
                 border: '1px solid',
-                borderColor: isCurrent ? AMBER : TEAL,
-                backgroundColor: isCurrent ? 'rgba(240, 165, 0, 0.15)' : 'transparent',
+                borderColor: isFocused ? AMBER : TEAL,
+                backgroundColor: isFocused ? 'rgba(240, 165, 0, 0.15)' : 'transparent',
                 color: '#d4d4d4',
                 borderRadius: '3px',
                 fontFamily: 'monospace',
               }}
             >
-              {RANGE_LABELS[id]}
+              {entry.label}
             </button>
           );
         })}
         <button
-          onClick={() => setCurrentRangeId(undefined)}
+          onClick={() => setFocusedRange(undefined)}
           style={{
             padding: '4px 10px',
             fontSize: '12px',
             cursor: 'pointer',
             border: '1px solid #555',
-            backgroundColor: currentRangeId === undefined ? 'rgba(255,255,255,0.08)' : 'transparent',
+            backgroundColor: focusedRange === undefined ? 'rgba(255,255,255,0.08)' : 'transparent',
             color: '#d4d4d4',
             borderRadius: '3px',
           }}
@@ -126,7 +101,11 @@ export function App() {
       </div>
       <div style={{ flex: 1, minHeight: 0, display: 'flex', gap: '16px' }}>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <HexView data={DEMO_DATA} ranges={DEMO_RANGES} currentRangeId={currentRangeId} />
+          <HexView
+            data={DEMO_DATA}
+            primaryRange={focusedRange}
+            secondaryRanges={DEMO_RANGE_ENTRIES.map(e => e.range)}
+          />
         </div>
         <div style={{ width: '320px', flexShrink: 0 }}>
           <RangeList
