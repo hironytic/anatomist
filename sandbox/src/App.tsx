@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { HexView, RangeList } from '@hironytic/anatomist';
-import type { HexRange, RangeListItem } from '@hironytic/anatomist';
+import type { HexRange, PrimaryActiveSpan, RangeListItem } from '@hironytic/anatomist';
 import '@hironytic/anatomist/style.css';
 
 function makeData(size: number): Uint8Array {
@@ -41,6 +41,8 @@ const DEMO_ITEMS: RangeListItem[] = [
 
 const TEAL = '#4ec9b0';
 const AMBER = '#f0a500';
+
+const DEMO_ACTIVE_SPAN: PrimaryActiveSpan = { start: 1, end: 4 };
 
 export function App() {
   const [focusedRange, setFocusedRange] = useState<HexRange | undefined>(DEMO_RANGE_ENTRIES[0].range);
@@ -105,6 +107,7 @@ export function App() {
             data={DEMO_DATA}
             primaryRange={focusedRange}
             secondaryRanges={DEMO_RANGE_ENTRIES.map(e => e.range)}
+            activeSpan={DEMO_ACTIVE_SPAN}
           />
         </div>
         <div style={{ width: '320px', flexShrink: 0 }}>

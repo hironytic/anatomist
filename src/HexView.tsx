@@ -18,12 +18,26 @@ export interface HexRange {
   endOffset: number;
 }
 
+export interface PrimaryActiveSpan {
+  /** Inclusive offset relative to primaryRange.startOffset. */
+  start: number;
+  /** Exclusive offset relative to primaryRange.startOffset. */
+  end: number;
+}
+
 export interface HexViewProps {
   data: Uint8Array;
   /** The primary range to highlight with an accent border and background fill. */
   primaryRange?: HexRange;
   /** Secondary ranges shown with subtle borders alongside the primary range. */
   secondaryRanges?: HexRange[];
+  /**
+   * Sub-portion within primaryRange whose bytes are rendered in an accent
+   * text color. Offsets are relative to primaryRange.startOffset and are
+   * silently clamped to the primary range's length. Ignored when primaryRange
+   * is undefined or when the span is empty/inverted.
+   */
+  activeSpan?: PrimaryActiveSpan;
 }
 
 interface RangeOverlaySegment {
@@ -179,7 +193,7 @@ function computeRowOverlays(
   return segments;
 }
 
-export function HexView({ data, primaryRange, secondaryRanges = [] }: HexViewProps) {
+export function HexView({ data, primaryRange, secondaryRanges = [], activeSpan }: HexViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerHeight, setContainerHeight] = useState(0);
   const [scrollTop, setScrollTop] = useState(0);
@@ -195,6 +209,18 @@ export function HexView({ data, primaryRange, secondaryRanges = [] }: HexViewPro
   }, []);
 
   const totalRows = Math.ceil(data.length / BYTES_PER_ROW);
+
+  let activeStart = -1;
+  let activeEnd = -1;
+  if (primaryRange && activeSpan) {
+    const primaryLen = primaryRange.endOffset - primaryRange.startOffset;
+    const s = Math.max(0, Math.min(primaryLen, activeSpan.start));
+    const e = Math.max(0, Math.min(primaryLen, activeSpan.end));
+    if (s < e) {
+      activeStart = primaryRange.startOffset + s;
+      activeEnd = primaryRange.startOffset + e;
+    }
+  }
 
   const firstVisibleRow = Math.floor(scrollTop / ROW_HEIGHT_PX);
   const lastVisibleRow = Math.floor((scrollTop + containerHeight) / ROW_HEIGHT_PX);
@@ -214,8 +240,12 @@ export function HexView({ data, primaryRange, secondaryRanges = [] }: HexViewPro
     for (let col = 0; col < BYTES_PER_ROW; col++) {
       const byteIndex = baseByteIndex + col;
       if (byteIndex < data.length) {
+        const isActive = byteIndex >= activeStart && byteIndex < activeEnd;
+        const cellClass = isActive
+          ? 'anatomist-hex-view__cell anatomist-hex-view__cell--active'
+          : 'anatomist-hex-view__cell';
         cells.push(
-          <div key={col} className="anatomist-hex-view__cell">
+          <div key={col} className={cellClass}>
             {data[byteIndex].toString(16).toUpperCase().padStart(2, '0')}
           </div>
         );

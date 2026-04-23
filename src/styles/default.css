@@ -15,6 +15,7 @@
   --anatomist-hex-view-offset-fg: #569cd6;
   --anatomist-hex-view-offset-label-width: 52px;
   --anatomist-hex-view-cell-width: 28px;
+  --anatomist-hex-view-active-fg: #ffd86a;
 
   /* HexView — Range overlay */
   --anatomist-hex-range-border-color: #4ec9b0;
@@ -89,6 +90,10 @@
 
 .anatomist-hex-view__cell--empty {
   /* Keeps column spacing intact for incomplete last rows */
+}
+
+.anatomist-hex-view__cell--active {
+  color: var(--anatomist-hex-view-active-fg);
 }
 
 .anatomist-hex-view__range-overlay {
