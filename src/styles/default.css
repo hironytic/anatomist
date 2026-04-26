@@ -227,3 +227,54 @@
 .anatomist-range-list__jump:hover {
   color: var(--anatomist-range-list-jump-hover-fg);
 }
+
+/* Anatomist */
+
+:root {
+  --anatomist-app-bg: var(--anatomist-hex-view-bg, #1e1e1e);
+  --anatomist-app-fg: var(--anatomist-hex-view-fg, #d4d4d4);
+  --anatomist-app-empty-fg: var(--anatomist-hex-view-header-fg, #858585);
+  --anatomist-app-drag-border-color: var(
+    --anatomist-hex-range-primary-border-color,
+    #f0a500
+  );
+}
+
+.anatomist-app {
+  display: flex;
+  flex-direction: row;
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background-color: var(--anatomist-app-bg);
+  color: var(--anatomist-app-fg);
+  font-family: var(--anatomist-hex-view-font-family);
+  font-size: var(--anatomist-hex-view-font-size);
+}
+
+.anatomist-app--drag-over {
+  outline: 2px dashed var(--anatomist-app-drag-border-color);
+  outline-offset: -8px;
+}
+
+.anatomist-app--empty {
+  align-items: center;
+  justify-content: center;
+}
+
+.anatomist-app__hex {
+  flex: 0 0 auto;
+  height: 100%;
+}
+
+.anatomist-app__detail {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 100%;
+  overflow: auto;
+}
+
+.anatomist-app__empty-message {
+  color: var(--anatomist-app-empty-fg);
+  font-size: 16px;
+}
