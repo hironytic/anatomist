@@ -238,11 +238,17 @@
     --anatomist-hex-range-primary-border-color,
     #f0a500
   );
+  --anatomist-app-toolbar-bg: var(--anatomist-hex-view-header-bg, #252526);
+  --anatomist-app-toolbar-border-color: var(--anatomist-hex-view-border-color, #3c3c3c);
+  --anatomist-app-toolbar-height: 32px;
+  --anatomist-app-nav-button-fg: var(--anatomist-hex-view-fg, #d4d4d4);
+  --anatomist-app-nav-button-hover-fg: #ffffff;
+  --anatomist-app-nav-button-disabled-fg: var(--anatomist-hex-view-header-fg, #858585);
 }
 
 .anatomist-app {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   position: fixed;
   inset: 0;
   overflow: hidden;
@@ -266,12 +272,56 @@
   justify-content: center;
 }
 
+.anatomist-app__toolbar {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: var(--anatomist-app-toolbar-height);
+  padding: 0 8px;
+  background-color: var(--anatomist-app-toolbar-bg);
+  border-bottom: 1px solid var(--anatomist-app-toolbar-border-color);
+}
+
+.anatomist-app__nav {
+  display: flex;
+  flex-direction: row;
+  gap: 2px;
+}
+
+.anatomist-app__nav-button {
+  background: none;
+  border: none;
+  padding: 0 8px;
+  cursor: pointer;
+  color: var(--anatomist-app-nav-button-fg);
+  font-family: inherit;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.anatomist-app__nav-button:hover:not(:disabled) {
+  color: var(--anatomist-app-nav-button-hover-fg);
+}
+
+.anatomist-app__nav-button:disabled {
+  color: var(--anatomist-app-nav-button-disabled-fg);
+  cursor: default;
+}
+
+.anatomist-app__panes {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: row;
+  min-height: 0;
+}
+
 .anatomist-app__hex {
   flex: 0 0 auto;
   height: 100%;
 }
 
-.anatomist-app__detail {
+.anatomist-app__focus-region {
   flex: 1 1 0;
   min-width: 0;
   height: 100%;
