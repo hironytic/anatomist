@@ -9,6 +9,8 @@ export interface RangeListItem {
   name: string;
   /** Display value of the field. */
   value: string;
+  /** When provided, a jump button is shown on this item and clicking it invokes the handler. */
+  onJump?: () => void;
 }
 
 export interface RangeListProps {
@@ -16,19 +18,19 @@ export interface RangeListProps {
   /** The id of the currently selected item. Undefined means no selection. */
   selectedItemId?: string | number;
   onItemSelect?: (id: string | number) => void;
-  onItemJump?: (id: string | number) => void;
 }
 
 function formatOffset(offset: number): string {
   return offset.toString(16).toUpperCase().padStart(4, '0');
 }
 
-export function RangeList({ items, selectedItemId, onItemSelect, onItemJump }: RangeListProps) {
+export function RangeList({ items, selectedItemId, onItemSelect }: RangeListProps) {
   return (
     <div className="anatomist-range-list">
       {items.map(item => {
         const isSelected = item.id === selectedItemId;
         const offsetLabel = `${formatOffset(item.startOffset)}–${formatOffset(item.endOffset - 1)}`;
+        const onJump = item.onJump;
         return (
           <div
             key={item.id}
@@ -42,12 +44,12 @@ export function RangeList({ items, selectedItemId, onItemSelect, onItemJump }: R
             <span className="anatomist-range-list__offset">{offsetLabel}</span>
             <span className="anatomist-range-list__name">{item.name}</span>
             <span className="anatomist-range-list__value">{item.value}</span>
-            {onItemJump && (
+            {onJump && (
               <button
                 className="anatomist-range-list__jump"
                 onClick={e => {
                   e.stopPropagation();
-                  onItemJump(item.id);
+                  onJump();
                 }}
                 aria-label={`Jump to ${item.name}`}
               >

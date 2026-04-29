@@ -45,8 +45,7 @@ symlink and tsup's watch mode rebuilds `dist/` on save.
 
 ## CSS Distribution
 
-`src/styles/default.css` is **not** processed by tsup.
-It is copied verbatim to `dist/style.css` by the `build` script (`cp` after tsup).
+`src/styles/default.css` is copied verbatim to `dist/style.css` by tsup.
 Consumers import it as `@hironytic/anatomist/style.css`.
 
 ## Key Design Decisions
