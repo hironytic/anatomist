@@ -59,6 +59,7 @@ $RECYCLE.BIN/
 ### Project specific ignores
 
 node_modules/
+*.tsbuildinfo
 dist/
 sandbox/node_modules/
 sandbox/dist/
