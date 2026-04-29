@@ -177,7 +177,7 @@ export function Anatomist({ onLoad }: AnatomistProps) {
           <HexView data={data} primaryRange={current?.range} activeSpan={activeSpan} />
         </div>
         <div className="anatomist-app__focus-region">
-          {Focused ? <Focused {...(current!.props as object)} /> : null}
+          {Focused ? <Focused key={nav.index} {...(current!.props as object)} /> : null}
         </div>
       </div>
     </div>
