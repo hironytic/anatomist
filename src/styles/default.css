@@ -144,7 +144,7 @@
   );
   --anatomist-range-list-font-size: var(--anatomist-hex-view-font-size, 13px);
   --anatomist-range-list-border-color: var(--anatomist-hex-view-border-color, #3c3c3c);
-  --anatomist-range-list-item-height: 28px;
+  --anatomist-range-list-item-height: 36px;
   --anatomist-range-list-offset-fg: var(--anatomist-hex-view-offset-fg, #4ec9b0);
   --anatomist-range-list-selected-bg: rgba(78, 201, 176, 0.13);
   --anatomist-range-list-selected-border: #4ec9b0;
@@ -167,11 +167,11 @@
   flex-direction: row;
   align-items: center;
   height: var(--anatomist-range-list-item-height);
-  padding: 0 8px;
+  padding: 0 14px;
   box-sizing: border-box;
   border-bottom: 1px solid var(--anatomist-range-list-border-color);
   border-left: 2px solid transparent;
-  gap: 8px;
+  gap: 12px;
   cursor: default;
 }
 
@@ -240,10 +240,11 @@
   );
   --anatomist-app-toolbar-bg: var(--anatomist-hex-view-header-bg, #252526);
   --anatomist-app-toolbar-border-color: var(--anatomist-hex-view-border-color, #3c3c3c);
-  --anatomist-app-toolbar-height: 32px;
+  --anatomist-app-toolbar-height: 40px;
   --anatomist-app-nav-button-fg: var(--anatomist-hex-view-fg, #d4d4d4);
   --anatomist-app-nav-button-hover-fg: #ffffff;
   --anatomist-app-nav-button-disabled-fg: var(--anatomist-hex-view-header-fg, #858585);
+  --anatomist-app-pane-gap: 12px;
 }
 
 .anatomist-app {
@@ -314,6 +315,7 @@
   display: flex;
   flex-direction: row;
   min-height: 0;
+  gap: var(--anatomist-app-pane-gap);
 }
 
 .anatomist-app__hex {
