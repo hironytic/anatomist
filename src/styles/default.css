@@ -12,16 +12,16 @@
   --anatomist-hex-view-header-bg: #252526;
   --anatomist-hex-view-header-fg: #858585;
   --anatomist-hex-view-border-color: #3c3c3c;
-  --anatomist-hex-view-offset-fg: #569cd6;
+  --anatomist-hex-view-offset-fg: #4ec9b0;
   --anatomist-hex-view-offset-label-width: 52px;
   --anatomist-hex-view-cell-width: 28px;
-  --anatomist-hex-view-active-fg: #ffd86a;
+  --anatomist-hex-view-active-fg: #4ec9b0;
 
   /* HexView — Range overlay */
-  --anatomist-hex-range-border-color: #4ec9b0;
+  --anatomist-hex-range-border-color: #569cd6;
   --anatomist-hex-range-border-width: 1px;
-  --anatomist-hex-range-primary-border-color: #f0a500;
-  --anatomist-hex-range-primary-bg: rgba(240, 165, 0, 0.15);
+  --anatomist-hex-range-primary-border-color: #4ec9b0;
+  --anatomist-hex-range-primary-bg: rgba(78, 201, 176, 0.13);
 }
 
 /* HexView */
@@ -145,9 +145,9 @@
   --anatomist-range-list-font-size: var(--anatomist-hex-view-font-size, 13px);
   --anatomist-range-list-border-color: var(--anatomist-hex-view-border-color, #3c3c3c);
   --anatomist-range-list-item-height: 28px;
-  --anatomist-range-list-offset-fg: var(--anatomist-hex-view-offset-fg, #569cd6);
-  --anatomist-range-list-selected-bg: rgba(240, 165, 0, 0.15);
-  --anatomist-range-list-selected-border: #f0a500;
+  --anatomist-range-list-offset-fg: var(--anatomist-hex-view-offset-fg, #4ec9b0);
+  --anatomist-range-list-selected-bg: rgba(78, 201, 176, 0.13);
+  --anatomist-range-list-selected-border: #4ec9b0;
   --anatomist-range-list-jump-fg: #858585;
   --anatomist-range-list-jump-hover-fg: #d4d4d4;
 }
@@ -236,7 +236,7 @@
   --anatomist-app-empty-fg: var(--anatomist-hex-view-header-fg, #858585);
   --anatomist-app-drag-border-color: var(
     --anatomist-hex-range-primary-border-color,
-    #f0a500
+    #4ec9b0
   );
   --anatomist-app-toolbar-bg: var(--anatomist-hex-view-header-bg, #252526);
   --anatomist-app-toolbar-border-color: var(--anatomist-hex-view-border-color, #3c3c3c);
