@@ -34,6 +34,7 @@
   background-color: var(--anatomist-hex-view-bg);
   color: var(--anatomist-hex-view-fg);
   user-select: none;
+  color-scheme: dark;
 }
 
 .anatomist-hex-view__header {
@@ -58,6 +59,10 @@
   width: var(--anatomist-hex-view-cell-width);
   flex-shrink: 0;
   text-align: center;
+}
+
+.anatomist-hex-view__scroll-content {
+  padding-right: 8px;
 }
 
 .anatomist-hex-view__row {
@@ -244,7 +249,6 @@
   --anatomist-app-nav-button-fg: var(--anatomist-hex-view-fg, #d4d4d4);
   --anatomist-app-nav-button-hover-fg: #ffffff;
   --anatomist-app-nav-button-disabled-fg: var(--anatomist-hex-view-header-fg, #858585);
-  --anatomist-app-pane-gap: 12px;
 }
 
 .anatomist-app {
@@ -327,7 +331,6 @@
   display: flex;
   flex-direction: row;
   min-height: 0;
-  gap: var(--anatomist-app-pane-gap);
 }
 
 .anatomist-app__hex {
