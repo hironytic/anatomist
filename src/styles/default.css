@@ -293,21 +293,33 @@
 .anatomist-app__nav-button {
   background: none;
   border: none;
-  padding: 0 8px;
+  padding: 0;
+  margin: 0 1px;
   cursor: pointer;
   color: var(--anatomist-app-nav-button-fg);
-  font-family: inherit;
-  font-size: 18px;
-  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  transition: background 0.12s, color 0.12s;
+}
+
+.anatomist-app__nav-button svg {
+  display: block;
 }
 
 .anatomist-app__nav-button:hover:not(:disabled) {
   color: var(--anatomist-app-nav-button-hover-fg);
+  background: rgba(255, 255, 255, 0.07);
 }
 
 .anatomist-app__nav-button:disabled {
   color: var(--anatomist-app-nav-button-disabled-fg);
   cursor: default;
+  background: none;
+  opacity: 0.35;
 }
 
 .anatomist-app__panes {
@@ -328,6 +340,7 @@
   min-width: 0;
   height: 100%;
   overflow: auto;
+  border-left: 1px solid var(--anatomist-app-toolbar-border-color);
 }
 
 .anatomist-app__empty-message {
