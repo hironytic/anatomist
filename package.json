@@ -25,6 +25,12 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint src"
   },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "24.15.0"
+    }
+  },
   "peerDependencies": {
     "react": ">=19",
     "react-dom": ">=19"
