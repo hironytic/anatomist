@@ -1,19 +1,19 @@
 import { useState } from 'react';
-import { Anatomist, RangeList } from '@hironytic/anatomist';
-import type { Atlas, RangeListItem } from '@hironytic/anatomist';
+import { Anatomist, SpanList } from '@hironytic/anatomist';
+import type { Atlas, SpanListItem } from '@hironytic/anatomist';
 import '@hironytic/anatomist/style.css';
 
 const FOCUS_SIZE = 36;
 
 interface DetailProps {
-  items: RangeListItem[];
+  items: SpanListItem[];
   onItemSelect: (id: string | number) => void;
 }
 
 function Detail({ items, onItemSelect }: DetailProps) {
   const [selectedId, setSelectedId] = useState<string | number | undefined>(undefined);
   return (
-    <RangeList
+    <SpanList
       items={items}
       selectedItemId={selectedId}
       onItemSelect={(id) => {
@@ -46,7 +46,7 @@ function buildItems(
   data: Uint8Array,
   focusStart: number,
   onJump: (newStart: number) => void,
-): RangeListItem[] {
+): SpanListItem[] {
   const view = new DataView(data.buffer, data.byteOffset + focusStart, FOCUS_SIZE);
 
   const rawHex = Array.from(data.subarray(focusStart, focusStart + 6))
