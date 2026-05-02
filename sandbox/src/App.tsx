@@ -1,28 +1,8 @@
-import { useState } from 'react';
 import { Anatomist, SpanList } from '@hironytic/anatomist';
 import type { Atlas, SpanListItem } from '@hironytic/anatomist';
 import '@hironytic/anatomist/style.css';
 
 const FOCUS_SIZE = 36;
-
-interface DetailProps {
-  items: SpanListItem[];
-  onItemSelect: (id: string | number) => void;
-}
-
-function Detail({ items, onItemSelect }: DetailProps) {
-  const [selectedId, setSelectedId] = useState<string | number | undefined>(undefined);
-  return (
-    <SpanList
-      items={items}
-      selectedItemId={selectedId}
-      onItemSelect={(id) => {
-        setSelectedId(id);
-        onItemSelect(id);
-      }}
-    />
-  );
-}
 
 interface OutOfRangeProps {
   start: number;
@@ -98,7 +78,7 @@ function showFocusRegion(atlas: Atlas, data: Uint8Array, focusStart: number): vo
   const items = buildItems(data, focusStart, (newStart) => showFocusRegion(atlas, data, newStart));
   atlas.setFocusRegion({
     range: { startOffset: focusStart, endOffset: focusEnd },
-    component: Detail,
+    component: SpanList,
     props: {
       items,
       onItemSelect: (id: string | number) => {
