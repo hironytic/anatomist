@@ -34,7 +34,6 @@
   background-color: var(--anatomist-hex-view-bg);
   color: var(--anatomist-hex-view-fg);
   user-select: none;
-  color-scheme: dark;
 }
 
 .anatomist-hex-view__header {
@@ -261,6 +260,7 @@
   color: var(--anatomist-app-fg);
   font-family: var(--anatomist-hex-view-font-family);
   font-size: var(--anatomist-hex-view-font-size);
+  color-scheme: dark;
 }
 
 .anatomist-app--drag-over::after {
