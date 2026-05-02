@@ -208,6 +208,35 @@ export function HexView({ data, primaryRange, secondaryRanges = [], activeSpan }
     return () => ro.disconnect();
   }, []);
 
+  useEffect(() => {
+    if (!primaryRange || primaryRange.endOffset <= primaryRange.startOffset) return;
+    if (!containerRef.current || containerHeight === 0) return;
+
+    const startRow = Math.floor(primaryRange.startOffset / BYTES_PER_ROW);
+    const endRow = Math.floor((primaryRange.endOffset - 1) / BYTES_PER_ROW);
+
+    const container = containerRef.current;
+    const visibleHeight = containerHeight - ROW_HEIGHT_PX;
+
+    const rowTop = startRow * ROW_HEIGHT_PX;
+    const rowBottom = (endRow + 1) * ROW_HEIGHT_PX;
+
+    if (rowTop >= container.scrollTop && rowBottom <= container.scrollTop + visibleHeight) return;
+
+    let newScrollTop: number;
+    if (rowBottom - rowTop <= visibleHeight) {
+      if (rowTop < container.scrollTop) {
+        newScrollTop = rowTop;
+      } else {
+        newScrollTop = rowBottom - visibleHeight;
+      }
+    } else {
+      newScrollTop = rowTop;
+    }
+
+    container.scrollTop = Math.max(0, newScrollTop);
+  }, [primaryRange, containerHeight]);
+
   const totalRows = Math.ceil(data.length / BYTES_PER_ROW);
 
   let activeStart = -1;
