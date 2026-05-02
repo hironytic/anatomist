@@ -12,16 +12,16 @@
   --anatomist-hex-view-header-bg: #252526;
   --anatomist-hex-view-header-fg: #858585;
   --anatomist-hex-view-border-color: #3c3c3c;
-  --anatomist-hex-view-offset-fg: #569cd6;
+  --anatomist-hex-view-offset-fg: #4ec9b0;
   --anatomist-hex-view-offset-label-width: 52px;
   --anatomist-hex-view-cell-width: 28px;
-  --anatomist-hex-view-active-fg: #ffd86a;
+  --anatomist-hex-view-active-fg: #4ec9b0;
 
   /* HexView — Range overlay */
-  --anatomist-hex-range-border-color: #4ec9b0;
+  --anatomist-hex-range-border-color: #569cd6;
   --anatomist-hex-range-border-width: 1px;
-  --anatomist-hex-range-primary-border-color: #f0a500;
-  --anatomist-hex-range-primary-bg: rgba(240, 165, 0, 0.15);
+  --anatomist-hex-range-primary-border-color: #4ec9b0;
+  --anatomist-hex-range-primary-bg: rgba(78, 201, 176, 0.13);
 }
 
 /* HexView */
@@ -58,6 +58,10 @@
   width: var(--anatomist-hex-view-cell-width);
   flex-shrink: 0;
   text-align: center;
+}
+
+.anatomist-hex-view__scroll-content {
+  padding-right: 8px;
 }
 
 .anatomist-hex-view__row {
@@ -144,10 +148,10 @@
   );
   --anatomist-range-list-font-size: var(--anatomist-hex-view-font-size, 13px);
   --anatomist-range-list-border-color: var(--anatomist-hex-view-border-color, #3c3c3c);
-  --anatomist-range-list-item-height: 28px;
-  --anatomist-range-list-offset-fg: var(--anatomist-hex-view-offset-fg, #569cd6);
-  --anatomist-range-list-selected-bg: rgba(240, 165, 0, 0.15);
-  --anatomist-range-list-selected-border: #f0a500;
+  --anatomist-range-list-item-height: 36px;
+  --anatomist-range-list-offset-fg: var(--anatomist-hex-view-offset-fg, #4ec9b0);
+  --anatomist-range-list-selected-bg: rgba(78, 201, 176, 0.13);
+  --anatomist-range-list-selected-border: #4ec9b0;
   --anatomist-range-list-jump-fg: #858585;
   --anatomist-range-list-jump-hover-fg: #d4d4d4;
 }
@@ -167,11 +171,11 @@
   flex-direction: row;
   align-items: center;
   height: var(--anatomist-range-list-item-height);
-  padding: 0 8px;
+  padding: 0 14px;
   box-sizing: border-box;
   border-bottom: 1px solid var(--anatomist-range-list-border-color);
   border-left: 2px solid transparent;
-  gap: 8px;
+  gap: 12px;
   cursor: default;
 }
 
@@ -236,11 +240,11 @@
   --anatomist-app-empty-fg: var(--anatomist-hex-view-header-fg, #858585);
   --anatomist-app-drag-border-color: var(
     --anatomist-hex-range-primary-border-color,
-    #f0a500
+    #4ec9b0
   );
   --anatomist-app-toolbar-bg: var(--anatomist-hex-view-header-bg, #252526);
   --anatomist-app-toolbar-border-color: var(--anatomist-hex-view-border-color, #3c3c3c);
-  --anatomist-app-toolbar-height: 32px;
+  --anatomist-app-toolbar-height: 40px;
   --anatomist-app-nav-button-fg: var(--anatomist-hex-view-fg, #d4d4d4);
   --anatomist-app-nav-button-hover-fg: #ffffff;
   --anatomist-app-nav-button-disabled-fg: var(--anatomist-hex-view-header-fg, #858585);
@@ -256,6 +260,7 @@
   color: var(--anatomist-app-fg);
   font-family: var(--anatomist-hex-view-font-family);
   font-size: var(--anatomist-hex-view-font-size);
+  color-scheme: dark;
 }
 
 .anatomist-app--drag-over::after {
@@ -292,21 +297,33 @@
 .anatomist-app__nav-button {
   background: none;
   border: none;
-  padding: 0 8px;
+  padding: 0;
+  margin: 0 1px;
   cursor: pointer;
   color: var(--anatomist-app-nav-button-fg);
-  font-family: inherit;
-  font-size: 18px;
-  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  transition: background 0.12s, color 0.12s;
+}
+
+.anatomist-app__nav-button svg {
+  display: block;
 }
 
 .anatomist-app__nav-button:hover:not(:disabled) {
   color: var(--anatomist-app-nav-button-hover-fg);
+  background: rgba(255, 255, 255, 0.07);
 }
 
 .anatomist-app__nav-button:disabled {
   color: var(--anatomist-app-nav-button-disabled-fg);
   cursor: default;
+  background: none;
+  opacity: 0.35;
 }
 
 .anatomist-app__panes {
@@ -326,6 +343,7 @@
   min-width: 0;
   height: 100%;
   overflow: auto;
+  border-left: 1px solid var(--anatomist-app-toolbar-border-color);
 }
 
 .anatomist-app__empty-message {

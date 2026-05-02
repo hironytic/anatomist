@@ -159,7 +159,9 @@ export function Anatomist({ onLoad }: AnatomistProps) {
             disabled={!canGoBack}
             aria-label="Go back"
           >
-            {'‹'}
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M10 3L5 8L10 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
           </button>
           <button
             type="button"
@@ -168,7 +170,9 @@ export function Anatomist({ onLoad }: AnatomistProps) {
             disabled={!canGoForward}
             aria-label="Go forward"
           >
-            {'›'}
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M6 3L11 8L6 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
           </button>
         </div>
       </div>
