@@ -13,8 +13,6 @@ anatomist/           ← framework package root (@hironytic/anatomist)
   src/               ← framework source (published via dist/)
     styles/          ← CSS only; default.css is copied to dist/style.css at build time
   sandbox/           ← private validation app; never published
-    src/
-      format/        ← sandbox-specific binary format definition and parser
 ```
 
 The sandbox references the framework as `"@hironytic/anatomist": "file:.."`.
@@ -34,6 +32,9 @@ npm run sandbox
 
 The sandbox picks up framework changes automatically because Vite resolves the `file:..`
 symlink and tsup's watch mode rebuilds `dist/` on save.
+
+LSP errors in sandbox files are expected before the first build. They resolve once `dist/`
+exists. If no errors remain after building, the code is correct.
 
 ## Naming Conventions
 
