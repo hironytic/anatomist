@@ -154,6 +154,7 @@
   --anatomist-span-list-selected-border: #4ec9b0;
   --anatomist-span-list-jump-fg: #858585;
   --anatomist-span-list-jump-hover-fg: #d4d4d4;
+  --anatomist-span-list-jump-hover-bg: rgba(255, 255, 255, 0.06);
 }
 
 .anatomist-span-list {
@@ -192,6 +193,10 @@
   border-left-color: var(--anatomist-span-list-selected-border);
 }
 
+.anatomist-span-list__item--has-jump {
+  padding-right: 0;
+}
+
 .anatomist-span-list__offset {
   flex-shrink: 0;
   color: var(--anatomist-span-list-offset-fg);
@@ -217,18 +222,26 @@
 }
 
 .anatomist-span-list__jump {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
   flex-shrink: 0;
-  background: none;
+  width: 36px;
+  padding: 0;
+  background: transparent;
   border: none;
-  padding: 0 2px;
+  border-left: 1px solid var(--anatomist-span-list-border-color);
   cursor: pointer;
   color: var(--anatomist-span-list-jump-fg);
   font-family: inherit;
   font-size: inherit;
   line-height: 1;
+  transition: background 0.12s, color 0.12s;
 }
 
 .anatomist-span-list__jump:hover {
+  background: var(--anatomist-span-list-jump-hover-bg);
   color: var(--anatomist-span-list-jump-hover-fg);
 }
 
