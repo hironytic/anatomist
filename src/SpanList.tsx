@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 export interface SpanListItem {
   /** Unique identifier used as a React key and for selection matching. */
   id: string | number;
@@ -15,8 +17,6 @@ export interface SpanListItem {
 
 export interface SpanListProps {
   items: SpanListItem[];
-  /** The id of the currently selected item. Undefined means no selection. */
-  selectedItemId?: string | number;
   onItemSelect?: (id: string | number) => void;
 }
 
@@ -24,7 +24,8 @@ function formatOffset(offset: number): string {
   return offset.toString(16).toUpperCase().padStart(4, '0');
 }
 
-export function SpanList({ items, selectedItemId, onItemSelect }: SpanListProps) {
+export function SpanList({ items, onItemSelect }: SpanListProps) {
+  const [selectedItemId, setSelectedItemId] = useState<string | number | undefined>(undefined);
   return (
     <div className="anatomist-span-list">
       {items.map(item => {
@@ -37,10 +38,13 @@ export function SpanList({ items, selectedItemId, onItemSelect }: SpanListProps)
             className={
               'anatomist-span-list__item' +
               (isSelected ? ' anatomist-span-list__item--selected' : '') +
-              (onItemSelect ? ' anatomist-span-list__item--selectable' : '') +
+              ' anatomist-span-list__item--selectable' +
               (onJump ? ' anatomist-span-list__item--has-jump' : '')
             }
-            onClick={onItemSelect ? () => onItemSelect(item.id) : undefined}
+            onClick={() => {
+              setSelectedItemId(item.id);
+              onItemSelect?.(item.id);
+            }}
           >
             <span className="anatomist-span-list__offset">{offsetLabel}</span>
             <span className="anatomist-span-list__name">{item.name}</span>
