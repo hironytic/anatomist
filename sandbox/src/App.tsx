@@ -3,12 +3,14 @@ import { Anatomist, RangeList } from '@hironytic/anatomist';
 import type { Atlas, RangeListItem } from '@hironytic/anatomist';
 import '@hironytic/anatomist/style.css';
 
+const FOCUS_SIZE = 36;
+
 interface DetailProps {
   items: RangeListItem[];
-  atlas: Atlas;
+  onItemSelect: (id: string | number) => void;
 }
 
-function Detail({ items, atlas }: DetailProps) {
+function Detail({ items, onItemSelect }: DetailProps) {
   const [selectedId, setSelectedId] = useState<string | number | undefined>(undefined);
   return (
     <RangeList
@@ -16,63 +18,97 @@ function Detail({ items, atlas }: DetailProps) {
       selectedItemId={selectedId}
       onItemSelect={(id) => {
         setSelectedId(id);
-        const item = items.find((it) => it.id === id);
-        if (!item) return;
-        atlas.setActiveSpan(item.startOffset, item.endOffset);
+        onItemSelect(id);
       }}
     />
   );
 }
 
-function buildItems(
-  data: Uint8Array,
-  regionStart: number,
-  regionEnd: number,
-  chunkSize: number,
-): RangeListItem[] {
-  const items: RangeListItem[] = [];
-  const max = Math.min(data.length, regionEnd);
-  for (let offset = regionStart; offset < max; offset += chunkSize) {
-    const end = Math.min(offset + chunkSize, max);
-    const value = Array.from(data.subarray(offset, end))
-      .map((b) => b.toString(16).padStart(2, '0').toUpperCase())
-      .join(' ');
-    items.push({
-      id: `chunk-${offset}`,
-      startOffset: offset - regionStart,
-      endOffset: end - regionStart,
-      name: `Chunk @${offset}`,
-      value,
-    });
-  }
-  return items;
+interface OutOfRangeProps {
+  start: number;
+  end: number;
 }
 
-function focusOnSubRegion(atlas: Atlas, startOffset: number, endOffset: number) {
-  const items = buildItems(atlas.data, startOffset, endOffset, 4);
+function toHex(n: number): string {
+  if (n < 0) return '-' + Math.abs(n).toString(16).toUpperCase().padStart(4, '0');
+  return n.toString(16).toUpperCase().padStart(4, '0');
+}
+
+function OutOfRange({ start, end }: OutOfRangeProps) {
+  return (
+    <div style={{ padding: '16px', color: 'var(--anatomist-app-empty-fg)' }}>
+      {toHex(start)}–{toHex(end - 1)} の範囲がファイル外になるため表示できません
+    </div>
+  );
+}
+
+function buildItems(
+  data: Uint8Array,
+  focusStart: number,
+  onJump: (newStart: number) => void,
+): RangeListItem[] {
+  const view = new DataView(data.buffer, data.byteOffset + focusStart, FOCUS_SIZE);
+
+  const rawHex = Array.from(data.subarray(focusStart, focusStart + 6))
+    .map((b) => b.toString(16).padStart(2, '0').toUpperCase())
+    .join(' ');
+
+  const int8At34 = view.getInt8(34);
+  const int8At35 = view.getInt8(35);
+
+  return [
+    { id: 0, startOffset: 0, endOffset: 6, name: 'Raw bytes', value: rawHex },
+    { id: 1, startOffset: 6, endOffset: 14, name: 'float64 LE', value: String(view.getFloat64(6, true)) },
+    { id: 2, startOffset: 14, endOffset: 22, name: 'float64 BE', value: String(view.getFloat64(14, false)) },
+    { id: 3, startOffset: 22, endOffset: 26, name: 'int32 LE', value: String(view.getInt32(22, true)) },
+    { id: 4, startOffset: 26, endOffset: 30, name: 'int32 BE', value: String(view.getInt32(26, false)) },
+    { id: 5, startOffset: 30, endOffset: 32, name: 'int16 LE', value: String(view.getInt16(30, true)) },
+    { id: 6, startOffset: 32, endOffset: 34, name: 'int16 BE', value: String(view.getInt16(32, false)) },
+    {
+      id: 7,
+      startOffset: 34,
+      endOffset: 35,
+      name: 'int8',
+      value: String(int8At34),
+      onJump: () => onJump(focusStart + int8At34),
+    },
+    {
+      id: 8,
+      startOffset: 35,
+      endOffset: 36,
+      name: 'int8',
+      value: String(int8At35),
+      onJump: () => onJump(focusStart + int8At35),
+    },
+  ];
+}
+
+function showFocusRegion(atlas: Atlas, data: Uint8Array, focusStart: number): void {
+  const focusEnd = focusStart + FOCUS_SIZE;
+
+  if (focusStart < 0 || focusEnd > data.length) {
+    atlas.setFocusRegion({
+      range: { startOffset: 0, endOffset: 0 },
+      component: OutOfRange,
+      props: { start: focusStart, end: focusEnd },
+    });
+    return;
+  }
+
+  const items = buildItems(data, focusStart, (newStart) => showFocusRegion(atlas, data, newStart));
   atlas.setFocusRegion({
-    range: { startOffset, endOffset },
+    range: { startOffset: focusStart, endOffset: focusEnd },
     component: Detail,
-    props: { items, atlas },
+    props: {
+      items,
+      onItemSelect: (id: string | number) => {
+        const item = items.find((it) => it.id === id);
+        if (item) atlas.setActiveSpan(item.startOffset, item.endOffset);
+      },
+    },
   });
 }
 
 export function App() {
-  const handleLoad = (atlas: Atlas) => {
-    const items = buildItems(atlas.data, 0, 0x30, 8);
-    const itemAt32 = items.find((it) => it.id === 'chunk-32');
-    const itemAt40 = items.find((it) => it.id === 'chunk-40');
-    if (itemAt32) {
-      itemAt32.onJump = () => focusOnSubRegion(atlas, 0x30, 0x38);
-    }
-    if (itemAt40) {
-      itemAt40.onJump = () => focusOnSubRegion(atlas, 0x38, 0x40);
-    }
-    atlas.setFocusRegion({
-      range: { startOffset: 0, endOffset: 0x30 },
-      component: Detail,
-      props: { items, atlas },
-    });
-  };
-  return <Anatomist onLoad={handleLoad} />;
+  return <Anatomist onLoad={(atlas) => showFocusRegion(atlas, atlas.data, 0)} />;
 }
