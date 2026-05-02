@@ -1,9 +1,9 @@
 export interface SpanListItem {
   /** Unique identifier used as a React key and for selection matching. */
   id: string | number;
-  /** Start offset in bytes, relative to the beginning of the parent HexRange (inclusive). */
+  /** Start offset in bytes, relative to the beginning of the range (inclusive). */
   startOffset: number;
-  /** End offset in bytes, relative to the beginning of the parent HexRange (exclusive). */
+  /** End offset in bytes, relative to the beginning of the range (exclusive). */
   endOffset: number;
   /** Display name of the field. */
   name: string;
