@@ -165,6 +165,7 @@
   font-family: var(--anatomist-span-list-font-family);
   font-size: var(--anatomist-span-list-font-size);
   user-select: none;
+  outline: none;
 }
 
 .anatomist-span-list__item {
