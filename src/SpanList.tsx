@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 export interface SpanListItem {
   /** Unique identifier used as a React key and for selection matching. */
@@ -27,8 +27,38 @@ function formatOffset(offset: number): string {
 
 export function SpanList({ items, onItemSelect, onJumpHover }: SpanListProps) {
   const [selectedItemId, setSelectedItemId] = useState<string | number | undefined>(undefined);
+  const itemRefs = useRef<Map<string | number, HTMLDivElement>>(new Map());
+
+  function selectItem(id: string | number) {
+    setSelectedItemId(id);
+    onItemSelect?.(id);
+    itemRefs.current.get(id)?.scrollIntoView({ block: 'nearest' });
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent) {
+    if (items.length === 0) return;
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      const currentIndex = selectedItemId !== undefined
+        ? items.findIndex(item => item.id === selectedItemId)
+        : -1;
+      let nextIndex: number;
+      if (e.key === 'ArrowDown') {
+        nextIndex = currentIndex === -1 ? 0 : Math.min(currentIndex + 1, items.length - 1);
+      } else {
+        nextIndex = currentIndex === -1 ? items.length - 1 : Math.max(currentIndex - 1, 0);
+      }
+      selectItem(items[nextIndex].id);
+    } else if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      if (selectedItemId !== undefined) {
+        items.find(item => item.id === selectedItemId)?.onJump?.();
+      }
+    }
+  }
+
   return (
-    <div className="anatomist-span-list">
+    <div className="anatomist-span-list" tabIndex={0} role="listbox" onKeyDown={handleKeyDown}>
       {items.map(item => {
         const isSelected = item.id === selectedItemId;
         const offsetLabel = `${formatOffset(item.startOffset)}–${formatOffset(item.endOffset - 1)}`;
@@ -36,16 +66,22 @@ export function SpanList({ items, onItemSelect, onJumpHover }: SpanListProps) {
         return (
           <div
             key={item.id}
+            ref={el => {
+              if (el) {
+                itemRefs.current.set(item.id, el);
+              } else {
+                itemRefs.current.delete(item.id);
+              }
+            }}
             className={
               'anatomist-span-list__item' +
               (isSelected ? ' anatomist-span-list__item--selected' : '') +
               ' anatomist-span-list__item--selectable' +
               (onJump ? ' anatomist-span-list__item--has-jump' : '')
             }
-            onClick={() => {
-              setSelectedItemId(item.id);
-              onItemSelect?.(item.id);
-            }}
+            role="option"
+            aria-selected={isSelected}
+            onClick={() => selectItem(item.id)}
           >
             <span className="anatomist-span-list__offset">{offsetLabel}</span>
             <span className="anatomist-span-list__name">{item.name}</span>
