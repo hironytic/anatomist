@@ -13,6 +13,8 @@ export interface FocusRegion<P = unknown> {
   component: ComponentType<P>;
   /** Props passed to the component. */
   props: P;
+  /** Title displayed above the right pane. */
+  title: string;
 }
 
 /**
@@ -51,6 +53,7 @@ interface FocusRegionEntry {
   range: HexRange;
   component: ComponentType<unknown>;
   props: unknown;
+  title: string;
 }
 
 interface NavigationState {
@@ -106,6 +109,7 @@ export function Anatomist({ onLoad }: AnatomistProps) {
           range: region.range,
           component: region.component as ComponentType<unknown>,
           props: region.props,
+          title: region.title,
         };
         setNav((prev) => {
           const kept = prev.entries.slice(0, prev.index + 1);
@@ -185,6 +189,14 @@ export function Anatomist({ onLoad }: AnatomistProps) {
             </svg>
           </button>
         </div>
+        {current && (
+          <>
+            <div className="anatomist-app__toolbar-divider" />
+            <div className="anatomist-app__toolbar-title" key={nav.index}>
+              {current.title}
+            </div>
+          </>
+        )}
       </div>
       <div className="anatomist-app__panes">
         <div className="anatomist-app__hex">

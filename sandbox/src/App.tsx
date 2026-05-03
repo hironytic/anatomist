@@ -14,6 +14,10 @@ function toHex(n: number): string {
   return n.toString(16).toUpperCase().padStart(4, '0');
 }
 
+function toRegionTitle(start: number): string {
+  return 'Region from 0x' + start.toString(16).toUpperCase().padStart(4, '0');
+}
+
 function OutOfRange({ start, end }: OutOfRangeProps) {
   return (
     <div style={{ padding: '16px', color: 'var(--anatomist-app-empty-fg)' }}>
@@ -77,6 +81,7 @@ function showFocusRegion(atlas: Atlas, data: Uint8Array, focusStart: number): vo
       range: { startOffset: 0, endOffset: 0 },
       component: OutOfRange,
       props: { start: focusStart, end: focusEnd },
+      title: toRegionTitle(focusStart),
     });
     return;
   }
@@ -85,6 +90,7 @@ function showFocusRegion(atlas: Atlas, data: Uint8Array, focusStart: number): vo
   atlas.setFocusRegion({
     range: { startOffset: focusStart, endOffset: focusEnd },
     component: SpanList,
+    title: toRegionTitle(focusStart),
     props: {
       items,
       onItemSelect: (id: string | number) => {
