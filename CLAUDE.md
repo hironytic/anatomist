@@ -33,6 +33,13 @@ npm run sandbox
 The sandbox picks up framework changes automatically because Vite resolves the `file:..`
 symlink and tsup's watch mode rebuilds `dist/` on save.
 
+Other sandbox commands can be run from the root without `cd`:
+
+```
+npm run sandbox:build     # production build of the sandbox
+npm run sandbox:typecheck # type-check the sandbox
+```
+
 LSP errors in sandbox files are expected before the first build. They resolve once `dist/`
 exists. If no errors remain after building, the code is correct.
 

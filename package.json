@@ -22,6 +22,7 @@
     "dev": "tsup --watch",
     "sandbox": "npm run dev --prefix sandbox",
     "sandbox:build": "npm run build --prefix sandbox",
+    "sandbox:typecheck": "npm run typecheck --prefix sandbox",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src"
   },
