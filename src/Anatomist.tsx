@@ -36,6 +36,11 @@ export interface Atlas {
    * focus region's range.startOffset (see PrimaryActiveSpan).
    */
   setActiveSpan(start: number, end: number): void;
+  /**
+   * Set a single secondary range shown in HexView alongside the primary range.
+   * Pass undefined to clear it.
+   */
+  setSecondaryRange(range: HexRange | undefined): void;
 }
 
 export interface AnatomistProps {
@@ -59,6 +64,7 @@ export function Anatomist({ onLoad }: AnatomistProps) {
   const [data, setData] = useState<Uint8Array | null>(null);
   const [nav, setNav] = useState<NavigationState>(EMPTY_NAV);
   const [activeSpan, setActiveSpan] = useState<PrimaryActiveSpan | undefined>(undefined);
+  const [secondaryRanges, setSecondaryRanges] = useState<HexRange[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
   const dragDepthRef = useRef(0);
 
@@ -91,6 +97,7 @@ export function Anatomist({ onLoad }: AnatomistProps) {
     setData(buf);
     setNav(EMPTY_NAV);
     setActiveSpan(undefined);
+    setSecondaryRanges([]);
 
     const atlas: Atlas = {
       data: buf,
@@ -107,6 +114,7 @@ export function Anatomist({ onLoad }: AnatomistProps) {
         setActiveSpan(undefined);
       },
       setActiveSpan: (start, end) => setActiveSpan({ start, end }),
+      setSecondaryRange: (range) => setSecondaryRanges(range ? [range] : []),
     };
     onLoad(atlas);
   };
@@ -114,6 +122,7 @@ export function Anatomist({ onLoad }: AnatomistProps) {
   const handleBack = () => {
     setNav((prev) => (prev.index > 0 ? { ...prev, index: prev.index - 1 } : prev));
     setActiveSpan(undefined);
+    setSecondaryRanges([]);
   };
 
   const handleForward = () => {
@@ -121,6 +130,7 @@ export function Anatomist({ onLoad }: AnatomistProps) {
       prev.index < prev.entries.length - 1 ? { ...prev, index: prev.index + 1 } : prev,
     );
     setActiveSpan(undefined);
+    setSecondaryRanges([]);
   };
 
   const dragHandlers = {
@@ -178,7 +188,7 @@ export function Anatomist({ onLoad }: AnatomistProps) {
       </div>
       <div className="anatomist-app__panes">
         <div className="anatomist-app__hex">
-          <HexView data={data} primaryRange={current?.range} activeSpan={activeSpan} />
+          <HexView data={data} primaryRange={current?.range} activeSpan={activeSpan} secondaryRanges={secondaryRanges} />
         </div>
         <div className="anatomist-app__focus-region">
           {Focused ? <Focused key={nav.index} {...(current!.props as object)} /> : null}

@@ -18,13 +18,14 @@ export interface SpanListItem {
 export interface SpanListProps {
   items: SpanListItem[];
   onItemSelect?: (id: string | number) => void;
+  onJumpHover?: (id: string | number | undefined) => void;
 }
 
 function formatOffset(offset: number): string {
   return offset.toString(16).toUpperCase().padStart(4, '0');
 }
 
-export function SpanList({ items, onItemSelect }: SpanListProps) {
+export function SpanList({ items, onItemSelect, onJumpHover }: SpanListProps) {
   const [selectedItemId, setSelectedItemId] = useState<string | number | undefined>(undefined);
   return (
     <div className="anatomist-span-list">
@@ -56,6 +57,8 @@ export function SpanList({ items, onItemSelect }: SpanListProps) {
                   e.stopPropagation();
                   onJump();
                 }}
+                onMouseEnter={() => onJumpHover?.(item.id)}
+                onMouseLeave={() => onJumpHover?.(undefined)}
                 aria-label={`Jump to ${item.name}`}
               >
                 <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">

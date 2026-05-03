@@ -26,7 +26,7 @@ function buildItems(
   data: Uint8Array,
   focusStart: number,
   onJump: (newStart: number) => void,
-): SpanListItem[] {
+): { items: SpanListItem[]; jumpTargetMap: Map<string | number, number> } {
   const view = new DataView(data.buffer, data.byteOffset + focusStart, FOCUS_SIZE);
 
   const rawHex = Array.from(data.subarray(focusStart, focusStart + 6))
@@ -36,7 +36,11 @@ function buildItems(
   const int8At34 = view.getInt8(34);
   const int8At35 = view.getInt8(35);
 
-  return [
+  const jumpTargetMap = new Map<string | number, number>();
+  jumpTargetMap.set(7, focusStart + int8At34);
+  jumpTargetMap.set(8, focusStart + int8At35);
+
+  const items: SpanListItem[] = [
     { id: 0, startOffset: 0, endOffset: 6, name: 'Raw bytes', value: rawHex },
     { id: 1, startOffset: 6, endOffset: 14, name: 'float64 LE', value: String(view.getFloat64(6, true)) },
     { id: 2, startOffset: 14, endOffset: 22, name: 'float64 BE', value: String(view.getFloat64(14, false)) },
@@ -61,6 +65,8 @@ function buildItems(
       onJump: () => onJump(focusStart + int8At35),
     },
   ];
+
+  return { items, jumpTargetMap };
 }
 
 function showFocusRegion(atlas: Atlas, data: Uint8Array, focusStart: number): void {
@@ -75,7 +81,7 @@ function showFocusRegion(atlas: Atlas, data: Uint8Array, focusStart: number): vo
     return;
   }
 
-  const items = buildItems(data, focusStart, (newStart) => showFocusRegion(atlas, data, newStart));
+  const { items, jumpTargetMap } = buildItems(data, focusStart, (newStart) => showFocusRegion(atlas, data, newStart));
   atlas.setFocusRegion({
     range: { startOffset: focusStart, endOffset: focusEnd },
     component: SpanList,
@@ -84,6 +90,23 @@ function showFocusRegion(atlas: Atlas, data: Uint8Array, focusStart: number): vo
       onItemSelect: (id: string | number) => {
         const item = items.find((it) => it.id === id);
         if (item) atlas.setActiveSpan(item.startOffset, item.endOffset);
+      },
+      onJumpHover: (id: string | number | undefined) => {
+        if (id === undefined) {
+          atlas.setSecondaryRange(undefined);
+          return;
+        }
+        const target = jumpTargetMap.get(id);
+        if (target === undefined) {
+          atlas.setSecondaryRange(undefined);
+          return;
+        }
+        const newEnd = target + FOCUS_SIZE;
+        if (target >= 0 && newEnd <= data.length) {
+          atlas.setSecondaryRange({ startOffset: target, endOffset: newEnd });
+        } else {
+          atlas.setSecondaryRange(undefined);
+        }
       },
     },
   });
