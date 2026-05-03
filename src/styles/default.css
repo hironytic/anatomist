@@ -1,5 +1,7 @@
 /* Anatomist — Default Styles
  * Override variables in :root to customize the appearance.
+ * For light/dark theming, apply .anatomist-theme-light or .anatomist-theme-dark
+ * to any ancestor element, or rely on prefers-color-scheme for automatic switching.
  */
 
 :root {
@@ -7,21 +9,22 @@
   --anatomist-hex-view-font-family: ui-monospace, "Cascadia Code", "Source Code Pro",
     Menlo, Consolas, "DejaVu Sans Mono", monospace;
   --anatomist-hex-view-font-size: 13px;
-  --anatomist-hex-view-bg: #1e1e1e;
-  --anatomist-hex-view-fg: #d4d4d4;
-  --anatomist-hex-view-header-bg: #252526;
-  --anatomist-hex-view-header-fg: #858585;
-  --anatomist-hex-view-border-color: #3c3c3c;
-  --anatomist-hex-view-offset-fg: #4ec9b0;
+  --anatomist-hex-view-bg: #0a1929;
+  --anatomist-hex-view-fg: #b8d4ed;
+  --anatomist-hex-view-header-bg: #0d2035;
+  --anatomist-hex-view-header-fg: #5c85a8;
+  --anatomist-hex-view-border-color: #1e3a52;
+  --anatomist-hex-view-offset-fg: #5ab4e2;
   --anatomist-hex-view-offset-label-width: 52px;
   --anatomist-hex-view-cell-width: 28px;
-  --anatomist-hex-view-active-fg: #4ec9b0;
+  --anatomist-hex-view-active-fg: #ddf2ff;
+  --anatomist-hex-view-active-bg: rgba(90, 180, 226, 0.40);
 
   /* HexView — Range overlay */
-  --anatomist-hex-range-border-color: #569cd6;
+  --anatomist-hex-range-border-color: #2e78b5;
   --anatomist-hex-range-border-width: 1px;
-  --anatomist-hex-range-primary-border-color: #4ec9b0;
-  --anatomist-hex-range-primary-bg: rgba(78, 201, 176, 0.13);
+  --anatomist-hex-range-primary-border-color: #5ab4e2;
+  --anatomist-hex-range-primary-bg: rgba(90, 180, 226, 0.13);
 }
 
 /* HexView */
@@ -98,6 +101,7 @@
 
 .anatomist-hex-view__cell--active {
   color: var(--anatomist-hex-view-active-fg);
+  background-color: var(--anatomist-hex-view-active-bg);
 }
 
 .anatomist-hex-view__range-overlay {
@@ -139,22 +143,23 @@
 /* SpanList */
 
 :root {
-  --anatomist-span-list-bg: var(--anatomist-hex-view-bg, #1e1e1e);
-  --anatomist-span-list-fg: var(--anatomist-hex-view-fg, #d4d4d4);
+  --anatomist-span-list-bg: var(--anatomist-hex-view-bg, #0a1929);
+  --anatomist-span-list-fg: var(--anatomist-hex-view-fg, #b8d4ed);
   --anatomist-span-list-font-family: var(
     --anatomist-hex-view-font-family,
     ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Consolas,
     "DejaVu Sans Mono", monospace
   );
   --anatomist-span-list-font-size: var(--anatomist-hex-view-font-size, 13px);
-  --anatomist-span-list-border-color: var(--anatomist-hex-view-border-color, #3c3c3c);
+  --anatomist-span-list-border-color: var(--anatomist-hex-view-border-color, #1e3a52);
   --anatomist-span-list-item-height: 36px;
-  --anatomist-span-list-offset-fg: var(--anatomist-hex-view-offset-fg, #4ec9b0);
-  --anatomist-span-list-selected-bg: rgba(78, 201, 176, 0.13);
-  --anatomist-span-list-selected-border: #4ec9b0;
-  --anatomist-span-list-jump-fg: #858585;
-  --anatomist-span-list-jump-hover-fg: #d4d4d4;
-  --anatomist-span-list-jump-hover-bg: rgba(255, 255, 255, 0.06);
+  --anatomist-span-list-offset-fg: var(--anatomist-hex-view-offset-fg, #5ab4e2);
+  --anatomist-span-list-selected-bg: rgba(90, 180, 226, 0.13);
+  --anatomist-span-list-selected-border: #5ab4e2;
+  --anatomist-span-list-jump-fg: #5c85a8;
+  --anatomist-span-list-jump-hover-fg: #b8d4ed;
+  --anatomist-span-list-jump-hover-bg: rgba(90, 180, 226, 0.12);
+  --anatomist-span-list-item-hover-bg: rgba(90, 180, 226, 0.07);
 }
 
 .anatomist-span-list {
@@ -186,7 +191,7 @@
 }
 
 .anatomist-span-list__item--selectable:hover {
-  background-color: rgba(255, 255, 255, 0.04);
+  background-color: var(--anatomist-span-list-item-hover-bg);
 }
 
 .anatomist-span-list__item--selected {
@@ -249,19 +254,20 @@
 /* Anatomist */
 
 :root {
-  --anatomist-app-bg: var(--anatomist-hex-view-bg, #1e1e1e);
-  --anatomist-app-fg: var(--anatomist-hex-view-fg, #d4d4d4);
-  --anatomist-app-empty-fg: var(--anatomist-hex-view-header-fg, #858585);
+  --anatomist-app-bg: var(--anatomist-hex-view-bg, #0a1929);
+  --anatomist-app-fg: var(--anatomist-hex-view-fg, #b8d4ed);
+  --anatomist-app-empty-fg: var(--anatomist-hex-view-header-fg, #5c85a8);
   --anatomist-app-drag-border-color: var(
     --anatomist-hex-range-primary-border-color,
-    #4ec9b0
+    #5ab4e2
   );
-  --anatomist-app-toolbar-bg: var(--anatomist-hex-view-header-bg, #252526);
-  --anatomist-app-toolbar-border-color: var(--anatomist-hex-view-border-color, #3c3c3c);
+  --anatomist-app-toolbar-bg: var(--anatomist-hex-view-header-bg, #0d2035);
+  --anatomist-app-toolbar-border-color: var(--anatomist-hex-view-border-color, #1e3a52);
   --anatomist-app-toolbar-height: 40px;
-  --anatomist-app-nav-button-fg: var(--anatomist-hex-view-fg, #d4d4d4);
-  --anatomist-app-nav-button-hover-fg: #ffffff;
-  --anatomist-app-nav-button-disabled-fg: var(--anatomist-hex-view-header-fg, #858585);
+  --anatomist-app-nav-button-fg: var(--anatomist-hex-view-fg, #b8d4ed);
+  --anatomist-app-nav-button-hover-fg: #e8f4fd;
+  --anatomist-app-nav-button-hover-bg: rgba(90, 180, 226, 0.10);
+  --anatomist-app-nav-button-disabled-fg: var(--anatomist-hex-view-header-fg, #5c85a8);
 }
 
 .anatomist-app {
@@ -330,7 +336,7 @@
 
 .anatomist-app__nav-button:hover:not(:disabled) {
   color: var(--anatomist-app-nav-button-hover-fg);
-  background: rgba(255, 255, 255, 0.07);
+  background: var(--anatomist-app-nav-button-hover-bg);
 }
 
 .anatomist-app__nav-button:disabled {
@@ -363,4 +369,103 @@
 .anatomist-app__empty-message {
   color: var(--anatomist-app-empty-fg);
   font-size: 16px;
+}
+
+/* ============================================================
+ * Light theme — Blueprint Paper (engineering drawing) aesthetic
+ *
+ * Apply .anatomist-theme-light to any ancestor to force light mode.
+ * Apply .anatomist-theme-dark to any ancestor to force dark mode.
+ * Without either class, the theme follows prefers-color-scheme.
+ * ============================================================ */
+
+@media (prefers-color-scheme: light) {
+  :root {
+    /* HexView */
+    --anatomist-hex-view-bg: #f0f4f9;
+    --anatomist-hex-view-fg: #1c2c42;
+    --anatomist-hex-view-header-bg: #e2eaf4;
+    --anatomist-hex-view-header-fg: #5b718b;
+    --anatomist-hex-view-border-color: #c5d5e8;
+    --anatomist-hex-view-offset-fg: #1976d3;
+    --anatomist-hex-view-active-fg: #061540;
+    --anatomist-hex-view-active-bg: rgba(25, 118, 211, 0.28);
+
+    /* HexView — Range overlay */
+    --anatomist-hex-range-border-color: #42a5f5;
+    --anatomist-hex-range-primary-border-color: #1976d3;
+    --anatomist-hex-range-primary-bg: rgba(25, 118, 211, 0.12);
+
+    /* SpanList */
+    --anatomist-span-list-selected-bg: rgba(25, 118, 211, 0.12);
+    --anatomist-span-list-selected-border: #1976d3;
+    --anatomist-span-list-jump-fg: #5b718b;
+    --anatomist-span-list-jump-hover-fg: #1c2c42;
+    --anatomist-span-list-jump-hover-bg: rgba(28, 44, 66, 0.07);
+    --anatomist-span-list-item-hover-bg: rgba(28, 44, 66, 0.05);
+
+    /* Anatomist App */
+    --anatomist-app-nav-button-hover-fg: #0a1929;
+    --anatomist-app-nav-button-hover-bg: rgba(28, 44, 66, 0.07);
+  }
+
+  .anatomist-app {
+    color-scheme: light;
+  }
+}
+
+/* Force light theme via class */
+.anatomist-theme-light {
+  --anatomist-hex-view-bg: #f0f4f9;
+  --anatomist-hex-view-fg: #1c2c42;
+  --anatomist-hex-view-header-bg: #e2eaf4;
+  --anatomist-hex-view-header-fg: #5b718b;
+  --anatomist-hex-view-border-color: #c5d5e8;
+  --anatomist-hex-view-offset-fg: #1976d3;
+  --anatomist-hex-view-active-fg: #061540;
+  --anatomist-hex-view-active-bg: rgba(25, 118, 211, 0.28);
+  --anatomist-hex-range-border-color: #42a5f5;
+  --anatomist-hex-range-primary-border-color: #1976d3;
+  --anatomist-hex-range-primary-bg: rgba(25, 118, 211, 0.12);
+  --anatomist-span-list-selected-bg: rgba(25, 118, 211, 0.12);
+  --anatomist-span-list-selected-border: #1976d3;
+  --anatomist-span-list-jump-fg: #5b718b;
+  --anatomist-span-list-jump-hover-fg: #1c2c42;
+  --anatomist-span-list-jump-hover-bg: rgba(28, 44, 66, 0.07);
+  --anatomist-span-list-item-hover-bg: rgba(28, 44, 66, 0.05);
+  --anatomist-app-nav-button-hover-fg: #0a1929;
+  --anatomist-app-nav-button-hover-bg: rgba(28, 44, 66, 0.07);
+}
+
+.anatomist-theme-light .anatomist-app,
+.anatomist-app.anatomist-theme-light {
+  color-scheme: light;
+}
+
+/* Force dark theme via class (overrides light OS preference) */
+.anatomist-theme-dark {
+  --anatomist-hex-view-bg: #0a1929;
+  --anatomist-hex-view-fg: #b8d4ed;
+  --anatomist-hex-view-header-bg: #0d2035;
+  --anatomist-hex-view-header-fg: #5c85a8;
+  --anatomist-hex-view-border-color: #1e3a52;
+  --anatomist-hex-view-offset-fg: #5ab4e2;
+  --anatomist-hex-view-active-fg: #ddf2ff;
+  --anatomist-hex-view-active-bg: rgba(90, 180, 226, 0.40);
+  --anatomist-hex-range-border-color: #2e78b5;
+  --anatomist-hex-range-primary-border-color: #5ab4e2;
+  --anatomist-hex-range-primary-bg: rgba(90, 180, 226, 0.13);
+  --anatomist-span-list-selected-bg: rgba(90, 180, 226, 0.13);
+  --anatomist-span-list-selected-border: #5ab4e2;
+  --anatomist-span-list-jump-fg: #5c85a8;
+  --anatomist-span-list-jump-hover-fg: #b8d4ed;
+  --anatomist-span-list-jump-hover-bg: rgba(90, 180, 226, 0.12);
+  --anatomist-span-list-item-hover-bg: rgba(90, 180, 226, 0.07);
+  --anatomist-app-nav-button-hover-fg: #e8f4fd;
+  --anatomist-app-nav-button-hover-bg: rgba(90, 180, 226, 0.10);
+}
+
+.anatomist-theme-dark .anatomist-app,
+.anatomist-app.anatomist-theme-dark {
+  color-scheme: dark;
 }
