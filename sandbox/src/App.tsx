@@ -106,5 +106,12 @@ function showFocusRegion(atlas: Atlas, data: Uint8Array, focusStart: number): vo
 }
 
 export function App() {
-  return <Anatomist onLoad={(atlas) => showFocusRegion(atlas, atlas.data, 0)} />;
+  return (
+    <Anatomist
+      appName="Anatomist Sandbox"
+      version="v0.1.0"
+      description="A sandbox app for validating the Anatomist framework."
+      onLoad={(atlas) => showFocusRegion(atlas, atlas.data, 0)}
+    />
+  );
 }

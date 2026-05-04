@@ -9,3 +9,6 @@ export type { FocusMessageProps } from './FocusMessage';
 
 export { Anatomist } from './Anatomist';
 export type { AnatomistProps, Atlas, FocusRegion } from './Anatomist';
+
+export { WelcomeView } from './WelcomeView';
+export type { WelcomeViewProps } from './WelcomeView';

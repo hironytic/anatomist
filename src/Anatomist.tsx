@@ -1,5 +1,6 @@
 import { useRef, useState, type ComponentType, type DragEvent } from 'react';
 import { HexView, type HexRange, type PrimaryActiveSpan } from './HexView';
+import { WelcomeView } from './WelcomeView';
 
 /**
  * A region of the binary that the user is currently focused on.
@@ -47,6 +48,9 @@ export interface Atlas {
 
 export interface AnatomistProps {
   onLoad: (atlas: Atlas) => void;
+  appName?: string;
+  version?: string;
+  description?: string;
 }
 
 interface FocusRegionEntry {
@@ -63,7 +67,7 @@ interface NavigationState {
 
 const EMPTY_NAV: NavigationState = { entries: [], index: -1 };
 
-export function Anatomist({ onLoad }: AnatomistProps) {
+export function Anatomist({ onLoad, appName, version, description }: AnatomistProps) {
   const [data, setData] = useState<Uint8Array | null>(null);
   const [nav, setNav] = useState<NavigationState>(EMPTY_NAV);
   const [activeSpan, setActiveSpan] = useState<PrimaryActiveSpan | undefined>(undefined);
@@ -152,7 +156,7 @@ export function Anatomist({ onLoad }: AnatomistProps) {
   if (data === null) {
     return (
       <div className={rootClass} {...dragHandlers}>
-        <div className="anatomist-app__empty-message">Drop a file here</div>
+        <WelcomeView appName={appName} version={version} description={description} />
       </div>
     );
   }
