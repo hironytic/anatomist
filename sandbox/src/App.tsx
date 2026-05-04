@@ -1,13 +1,8 @@
-import { Anatomist, SpanList } from '@hironytic/anatomist';
+import { Anatomist, FocusMessage, SpanList } from '@hironytic/anatomist';
 import type { Atlas, SpanListItem } from '@hironytic/anatomist';
 import '@hironytic/anatomist/style.css';
 
 const FOCUS_SIZE = 36;
-
-interface OutOfRangeProps {
-  start: number;
-  end: number;
-}
 
 function toHex(n: number): string {
   if (n < 0) return '-' + Math.abs(n).toString(16).toUpperCase().padStart(4, '0');
@@ -16,14 +11,6 @@ function toHex(n: number): string {
 
 function toRegionTitle(start: number): string {
   return 'Region from 0x' + start.toString(16).toUpperCase().padStart(4, '0');
-}
-
-function OutOfRange({ start, end }: OutOfRangeProps) {
-  return (
-    <div style={{ padding: '16px', color: 'var(--anatomist-app-empty-fg)' }}>
-      {toHex(start)}–{toHex(end - 1)} の範囲がファイル外になるため表示できません
-    </div>
-  );
 }
 
 function buildItems(
@@ -79,8 +66,8 @@ function showFocusRegion(atlas: Atlas, data: Uint8Array, focusStart: number): vo
   if (focusStart < 0 || focusEnd > data.length) {
     atlas.setFocusRegion({
       range: { startOffset: 0, endOffset: 0 },
-      component: OutOfRange,
-      props: { start: focusStart, end: focusEnd },
+      component: FocusMessage,
+      props: { message: `${toHex(focusStart)}–${toHex(focusEnd - 1)} is outside the file bounds` },
       title: toRegionTitle(focusStart),
     });
     return;
