@@ -5,9 +5,12 @@
  */
 
 :root {
-  /* HexView */
-  --anatomist-hex-view-font-family: ui-monospace, "Cascadia Code", "Source Code Pro",
+  /* Typography */
+  --anatomist-ui-font-family: system-ui, sans-serif;
+  --anatomist-monospace-font-family: ui-monospace, "Cascadia Code", "Source Code Pro",
     Menlo, Consolas, "DejaVu Sans Mono", monospace;
+
+  /* HexView */
   --anatomist-hex-view-font-size: 13px;
   --anatomist-hex-view-bg: #0a1929;
   --anatomist-hex-view-fg: #b8d4ed;
@@ -32,7 +35,7 @@
 .anatomist-hex-view {
   overflow-y: auto;
   height: 100%;
-  font-family: var(--anatomist-hex-view-font-family);
+  font-family: var(--anatomist-monospace-font-family);
   font-size: var(--anatomist-hex-view-font-size);
   background-color: var(--anatomist-hex-view-bg);
   color: var(--anatomist-hex-view-fg);
@@ -145,11 +148,6 @@
 :root {
   --anatomist-span-list-bg: var(--anatomist-hex-view-bg, #0a1929);
   --anatomist-span-list-fg: var(--anatomist-hex-view-fg, #b8d4ed);
-  --anatomist-span-list-font-family: var(
-    --anatomist-hex-view-font-family,
-    ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Consolas,
-    "DejaVu Sans Mono", monospace
-  );
   --anatomist-span-list-font-size: var(--anatomist-hex-view-font-size, 13px);
   --anatomist-span-list-border-color: var(--anatomist-hex-view-border-color, #1e3a52);
   --anatomist-span-list-item-height: 36px;
@@ -167,7 +165,7 @@
   height: 100%;
   background-color: var(--anatomist-span-list-bg);
   color: var(--anatomist-span-list-fg);
-  font-family: var(--anatomist-span-list-font-family);
+  font-family: var(--anatomist-ui-font-family);
   font-size: var(--anatomist-span-list-font-size);
   user-select: none;
   outline: none;
@@ -207,6 +205,7 @@
   flex-shrink: 0;
   color: var(--anatomist-span-list-offset-fg);
   white-space: nowrap;
+  font-family: var(--anatomist-monospace-font-family);
 }
 
 .anatomist-span-list__name {
@@ -267,7 +266,7 @@
   padding: 32px;
   box-sizing: border-box;
   gap: 14px;
-  font-family: var(--anatomist-hex-view-font-family);
+  font-family: var(--anatomist-ui-font-family);
   font-size: var(--anatomist-hex-view-font-size);
 }
 
@@ -314,7 +313,7 @@
   overflow: hidden;
   background-color: var(--anatomist-app-bg);
   color: var(--anatomist-app-fg);
-  font-family: var(--anatomist-hex-view-font-family);
+  font-family: var(--anatomist-ui-font-family);
   font-size: var(--anatomist-hex-view-font-size);
   color-scheme: dark;
 }
