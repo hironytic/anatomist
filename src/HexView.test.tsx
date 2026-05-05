@@ -59,12 +59,13 @@ describe('computeRangeSegments', () => {
     });
   });
 
-  describe('multi-row range (full rows 0–2)', () => {
+  describe('multi-row range (full rows 0–2, C1=0 C2=15)', () => {
+    // Full-width: no staircase step, so no -inset extension — rows meet exactly at boundary.
     const range = { startOffset: 0, endOffset: 48 };
 
-    it('first row has borderTop=true and bottom extended to -inset', () => {
+    it('first row has borderTop=true and bottom=0 (no extension when C1=0)', () => {
       const segs = computeRangeSegments(0, range, 'p', false);
-      expect(segs[0]).toMatchObject({ borderTop: true, borderBottom: false, bottom: -OVERLAY_INSET_PX });
+      expect(segs[0]).toMatchObject({ borderTop: true, borderBottom: false, bottom: 0 });
     });
 
     it('middle row has no top/bottom borders and zero top/bottom offsets', () => {
@@ -72,9 +73,57 @@ describe('computeRangeSegments', () => {
       expect(segs[0]).toMatchObject({ borderTop: false, borderBottom: false, top: 0, bottom: 0 });
     });
 
-    it('last row has borderBottom=true and top extended to -inset', () => {
+    it('last row has borderBottom=true and top=0 (no extension when C2=15)', () => {
       const segs = computeRangeSegments(2, range, 'p', false);
-      expect(segs[0]).toMatchObject({ borderTop: false, borderBottom: true, top: -OVERLAY_INSET_PX });
+      expect(segs[0]).toMatchObject({ borderTop: false, borderBottom: true, top: 0 });
+    });
+  });
+
+  describe('multi-row range (2 rows, full-width)', () => {
+    // Two adjacent full-width rows: bg segments must not overlap (top=0/bottom=0 at boundary).
+    const range = { startOffset: 0, endOffset: 32 };
+
+    it('first row has bottom=0 so bg does not bleed into next row', () => {
+      const segs = computeRangeSegments(0, range, 'p', false);
+      expect(segs[0]).toMatchObject({ bottom: 0 });
+    });
+
+    it('last row has top=0 so bg does not bleed into previous row', () => {
+      const segs = computeRangeSegments(1, range, 'p', false);
+      expect(segs[0]).toMatchObject({ top: 0 });
+    });
+  });
+
+  describe('multi-row range (3 rows, C1=0 C2=3) — user-reported bug case', () => {
+    // startOffset=0 (C1=0), endOffset=36 (R2=2, C2=3): rows 0 and 1 are full-width.
+    const range = { startOffset: 0, endOffset: 36 };
+
+    it('first row (full-width) has bottom=0, preventing bg overlap with row 1', () => {
+      const segs = computeRangeSegments(0, range, 'p', false);
+      expect(segs[0]).toMatchObject({ bottom: 0 });
+    });
+
+    it('middle row (full-width) has top=0 and bottom=inset (step at bottom)', () => {
+      const segs = computeRangeSegments(1, range, 'p', false);
+      expect(segs[0]).toMatchObject({ top: 0, bottom: OVERLAY_INSET_PX });
+    });
+  });
+
+  describe('multi-row staircase range — extensions preserved when C1>0 or C2<15', () => {
+    // offsets 4–47: R1=0,C1=4; R2=2,C2=15. C1>0 so first-row extension must be kept.
+    const rangeC1 = { startOffset: 4, endOffset: 48 };
+
+    it('first row keeps bottom=-inset extension when C1>0 (step connection needed)', () => {
+      const segs = computeRangeSegments(0, rangeC1, 'p', false);
+      expect(segs[0]).toMatchObject({ bottom: -OVERLAY_INSET_PX });
+    });
+
+    // offsets 0–43: R1=0,C1=0; R2=2,C2=11. C2<15 so last-row extension must be kept.
+    const rangeC2 = { startOffset: 0, endOffset: 44 };
+
+    it('last row keeps top=-inset extension when C2<15 (step connection needed)', () => {
+      const segs = computeRangeSegments(2, rangeC2, 'p', false);
+      expect(segs[0]).toMatchObject({ top: -OVERLAY_INSET_PX });
     });
   });
 

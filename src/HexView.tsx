@@ -84,19 +84,22 @@ export function computeRangeSegments(
   const isSplit = R2 === R1 + 1 && C1 > C2;
 
   // Main body: carries left/right borders (always) and top/bottom borders on first/last rows.
-  // For staircase ranges, the first row extends below by -inset and the last row extends
-  // above by -inset so that the step borders connect flush to the vertical borders.
+  // For staircase ranges where C1 > 0, the first row extends below by -inset so its vertical
+  // borders connect flush to the step_top border on the next row. Symmetrically, when C2 < 15,
+  // the last row extends above by -inset to connect flush to the step_bottom border.
   // The row just below R1 (if C1>0) and the row just above R2 (if C2<15) shift their
   // top/bottom by inset so the vertical border begins/ends exactly at the step border.
+  // When C1 = 0 or C2 = 15 there is no step, so no extension is needed — adjacent rows meet
+  // at the row boundary without overlap, avoiding a visible seam in the background fill.
   // For split ranges each row is a self-contained rectangle with all four borders.
   const top    = isSplit ? inset
                : isFirstRow ? inset
-               : (isLastRow && isMultiRow) ? -inset
+               : (isLastRow && isMultiRow && C2 < BYTES_PER_ROW - 1) ? -inset
                : (isMultiRow && C1 > 0 && rowIndex === R1 + 1) ? inset
                : 0;
   const bottom = isSplit ? inset
                : isLastRow ? inset
-               : (isFirstRow && isMultiRow) ? -inset
+               : (isFirstRow && isMultiRow && C1 > 0) ? -inset
                : (isMultiRow && C2 < BYTES_PER_ROW - 1 && rowIndex === R2 - 1) ? inset
                : 0;
 
