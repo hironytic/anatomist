@@ -56,6 +56,14 @@ exists. If no errors remain after building, the code is correct.
 `src/styles/default.css` is copied verbatim to `dist/style.css` by tsup.
 Consumers import it as `@hironytic/anatomist/style.css`.
 
+## Documentation
+
+`README.md` documents the public API. When modifying any of the following, update `README.md` in the same commit or PR:
+
+- Components exposed to consumers (`<Anatomist>`, `<SpanList>`, `<FocusMessage>`)
+- `Atlas` API (`data`, `setFocusRegion`, `setActiveSpan`, `setSecondaryRange`)
+- CSS custom properties (`--anatomist-*`) listed in the Theming section
+
 ## Key Design Decisions
 
 - **No bundled parser**: the framework receives already-parsed data structures; parsing is the consumer's responsibility.
