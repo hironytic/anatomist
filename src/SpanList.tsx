@@ -21,7 +21,7 @@ export interface SpanListProps {
   onJumpHover?: (id: string | number | undefined) => void;
 }
 
-function formatOffset(offset: number): string {
+export function formatOffset(offset: number): string {
   return offset.toString(16).toUpperCase().padStart(4, '0');
 }
 
