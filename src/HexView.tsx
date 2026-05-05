@@ -55,7 +55,7 @@ interface RangeOverlaySegment {
   borderRight: boolean;
 }
 
-function computeRangeSegments(
+export function computeRangeSegments(
   rowIndex: number,
   range: HexRange,
   keyPrefix: string,
@@ -175,7 +175,7 @@ function computeRangeSegments(
   return segments;
 }
 
-function computeRowOverlays(
+export function computeRowOverlays(
   rowIndex: number,
   secondaryRanges: HexRange[],
   primaryRange: HexRange | undefined,
