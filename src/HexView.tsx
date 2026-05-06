@@ -183,6 +183,43 @@ export function HexView({ data, primaryRange, secondaryRanges = [], activeSpan }
     container.scrollTop = Math.max(0, newScrollTop);
   }, [primaryRange, containerHeight]);
 
+  useEffect(() => {
+    if (!primaryRange || !activeSpan) return;
+    if (!containerRef.current || containerHeight === 0) return;
+
+    const primaryLen = primaryRange.endOffset - primaryRange.startOffset;
+    const s = Math.max(0, Math.min(primaryLen, activeSpan.start));
+    const e = Math.max(0, Math.min(primaryLen, activeSpan.end));
+    if (s >= e) return;
+
+    const spanStartOffset = primaryRange.startOffset + s;
+    const spanEndOffset   = primaryRange.startOffset + e;
+
+    const startRow = Math.floor(spanStartOffset / BYTES_PER_ROW);
+    const endRow   = Math.floor((spanEndOffset - 1) / BYTES_PER_ROW);
+
+    const container = containerRef.current;
+    const visibleHeight = containerHeight - ROW_HEIGHT_PX;
+
+    const rowTop    = startRow * ROW_HEIGHT_PX;
+    const rowBottom = (endRow + 1) * ROW_HEIGHT_PX;
+
+    if (rowTop >= container.scrollTop && rowBottom <= container.scrollTop + visibleHeight) return;
+
+    let newScrollTop: number;
+    if (rowBottom - rowTop <= visibleHeight) {
+      if (rowTop < container.scrollTop) {
+        newScrollTop = rowTop;
+      } else {
+        newScrollTop = rowBottom - visibleHeight;
+      }
+    } else {
+      newScrollTop = rowTop;
+    }
+
+    container.scrollTop = Math.max(0, newScrollTop);
+  }, [primaryRange, activeSpan, containerHeight]);
+
   const totalRows = Math.ceil(data.length / BYTES_PER_ROW);
 
   let activeStart = -1;
