@@ -16,7 +16,14 @@ export interface SpanListViewProps {
 export function SpanListView({ atlas, items }: SpanListViewProps) {
   return (
     <SpanList
-      items={items}
+      items={items.map(it => ({
+        ...it,
+        onJump: (it.onJump === undefined) ? undefined : () => {
+          // Clear the secondary range before jumping.
+          atlas.setSecondaryRange(undefined);
+          it.onJump?.();
+        }
+      }))}
       onItemSelect={(id) => {
         const item = items.find((it) => it.id === id);
         if (item) atlas.setActiveSpan(item.startOffset, item.endOffset);
