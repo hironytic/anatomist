@@ -1,25 +1,24 @@
 import { render, screen } from '@testing-library/react';
-import { computeRangeSegments, computeRowOverlays, HexView } from './HexView';
+import { computeSegmentsForRange, computeRowOverlays, HexView } from './HexView';
 
 const OFFSET_LABEL_WIDTH_PX = 52;
 const CELL_WIDTH_PX = 28;
-const OVERLAY_INSET_PX = 2;
 
-// --- computeRangeSegments ---
+// --- computeSegmentsForRange ---
 
-describe('computeRangeSegments', () => {
+describe('computeSegmentsForRange', () => {
   describe('empty / out-of-range', () => {
     it('returns [] for an empty range (start === end)', () => {
-      expect(computeRangeSegments(0, { startOffset: 5, endOffset: 5 }, 'p', false)).toEqual([]);
+      expect(computeSegmentsForRange(0, { startOffset: 5, endOffset: 5 }, 'p', false)).toEqual([]);
     });
 
     it('returns [] for an inverted range (start > end)', () => {
-      expect(computeRangeSegments(0, { startOffset: 10, endOffset: 5 }, 'p', false)).toEqual([]);
+      expect(computeSegmentsForRange(0, { startOffset: 10, endOffset: 5 }, 'p', false)).toEqual([]);
     });
 
     it('returns [] when the range does not touch the row', () => {
       // range occupies row 1 (offsets 16–31); rowIndex=0 has no overlap
-      expect(computeRangeSegments(0, { startOffset: 16, endOffset: 32 }, 'p', false)).toEqual([]);
+      expect(computeSegmentsForRange(0, { startOffset: 16, endOffset: 32 }, 'p', false)).toEqual([]);
     });
   });
 
@@ -28,12 +27,11 @@ describe('computeRangeSegments', () => {
     const range = { startOffset: 3, endOffset: 8 };
 
     it('returns one body segment for isPrimary=false', () => {
-      const segs = computeRangeSegments(0, range, 'key', false);
+      const segs = computeSegmentsForRange(0, range, 'key', false);
       expect(segs).toHaveLength(1);
       expect(segs[0]).toMatchObject({
-        key: 'key',
         isPrimary: false,
-        showBackground: false,
+        isBackground: false,
         borderTop: true,
         borderBottom: true,
         borderLeft: true,
@@ -42,77 +40,136 @@ describe('computeRangeSegments', () => {
     });
 
     it('adds a background segment for isPrimary=true', () => {
-      const segs = computeRangeSegments(0, range, 'p', true);
+      const segs = computeSegmentsForRange(0, range, 'p', true);
       expect(segs).toHaveLength(2);
-      expect(segs.find(s => s.key === 'p_bg')).toMatchObject({ isPrimary: true, showBackground: true });
-      expect(segs.find(s => s.key === 'p')).toMatchObject({ showBackground: false });
+      const bg = segs.find(s => s.key === 'p_bg');
+      expect(bg).toMatchObject({ isPrimary: true, isBackground: true });
+      expect(bg).toMatchObject({ borderTop: false, borderBottom: false, borderLeft: false, borderRight: false });
+      const body = segs.find(s => s.key !== 'p_bg');
+      expect(body).toMatchObject({ isBackground: false });
     });
 
     it('computes correct left position and width', () => {
-      const segs = computeRangeSegments(0, range, 'p', false);
+      const segs = computeSegmentsForRange(0, range, 'p', false);
       const body = segs[0];
       // cL=3, cR=7
-      const expectedLeft = OFFSET_LABEL_WIDTH_PX + 3 * CELL_WIDTH_PX + OVERLAY_INSET_PX;
-      const expectedWidth = (7 - 3 + 1) * CELL_WIDTH_PX - 2 * OVERLAY_INSET_PX;
+      const expectedLeft  = OFFSET_LABEL_WIDTH_PX + 3 * CELL_WIDTH_PX;
+      const expectedWidth = (7 - 3 + 1) * CELL_WIDTH_PX;
       expect(body.left).toBe(expectedLeft);
       expect(body.width).toBe(expectedWidth);
     });
   });
 
-  describe('multi-row range (full rows 0–2)', () => {
+  describe('multi-row range spanning full rows 0–2 (offsets 0–47)', () => {
     const range = { startOffset: 0, endOffset: 48 };
 
-    it('first row has borderTop=true and bottom extended to -inset', () => {
-      const segs = computeRangeSegments(0, range, 'p', false);
-      expect(segs[0]).toMatchObject({ borderTop: true, borderBottom: false, bottom: -OVERLAY_INSET_PX });
+    it('first row: borderTop=true, borderBottom=false, single span', () => {
+      const segs = computeSegmentsForRange(0, range, 'p', false);
+      expect(segs).toHaveLength(1);
+      expect(segs[0]).toMatchObject({ borderTop: true, borderBottom: false, borderLeft: true, borderRight: true });
     });
 
-    it('middle row has no top/bottom borders and zero top/bottom offsets', () => {
-      const segs = computeRangeSegments(1, range, 'p', false);
-      expect(segs[0]).toMatchObject({ borderTop: false, borderBottom: false, top: 0, bottom: 0 });
+    it('middle row: no top/bottom borders, single span', () => {
+      const segs = computeSegmentsForRange(1, range, 'p', false);
+      expect(segs).toHaveLength(1);
+      expect(segs[0]).toMatchObject({ borderTop: false, borderBottom: false, borderLeft: true, borderRight: true });
     });
 
-    it('last row has borderBottom=true and top extended to -inset', () => {
-      const segs = computeRangeSegments(2, range, 'p', false);
-      expect(segs[0]).toMatchObject({ borderTop: false, borderBottom: true, top: -OVERLAY_INSET_PX });
+    it('last row: borderTop=false, borderBottom=true, single span', () => {
+      const segs = computeSegmentsForRange(2, range, 'p', false);
+      expect(segs).toHaveLength(1);
+      expect(segs[0]).toMatchObject({ borderTop: false, borderBottom: true, borderLeft: true, borderRight: true });
     });
   });
 
-  describe('staircase shape', () => {
-    // offsets 4–33: R1=0,C1=4; R2=2,C2=1
-    // row 1 is both R1+1 and R2-1, so it gets step_top and step_bottom
+  describe('span split — top border varies by column', () => {
+    // range offsets 4–47: R1=0,C1=4; R2=2,C2=15
+    // row 1: current [0,15], prev [4,15]
+    //   cols 0–3: topNeeded=true (not in prev)
+    //   cols 4–15: topNeeded=false (in prev)
+    const range = { startOffset: 4, endOffset: 48 };
+
+    it('row 1 splits into 2 spans', () => {
+      const segs = computeSegmentsForRange(1, range, 'p', false);
+      expect(segs).toHaveLength(2);
+    });
+
+    it('first span (cols 0–3) has borderTop=true and borderLeft=true', () => {
+      const segs = computeSegmentsForRange(1, range, 'p', false);
+      const first = segs[0];
+      expect(first.borderTop).toBe(true);
+      expect(first.borderLeft).toBe(true);
+      expect(first.borderRight).toBe(false);
+      expect(first.left).toBe(OFFSET_LABEL_WIDTH_PX + 0 * CELL_WIDTH_PX);
+      expect(first.width).toBe(4 * CELL_WIDTH_PX);
+    });
+
+    it('second span (cols 4–15) has borderTop=false and borderRight=true', () => {
+      const segs = computeSegmentsForRange(1, range, 'p', false);
+      const second = segs[1];
+      expect(second.borderTop).toBe(false);
+      expect(second.borderLeft).toBe(false);
+      expect(second.borderRight).toBe(true);
+      expect(second.left).toBe(OFFSET_LABEL_WIDTH_PX + 4 * CELL_WIDTH_PX);
+      expect(second.width).toBe(12 * CELL_WIDTH_PX);
+    });
+  });
+
+  describe('span split — bottom border varies by column', () => {
+    // range offsets 0–33: R1=0,C1=0; R2=2,C2=1
+    // row 1: current [0,15], next [0,1]
+    //   cols 0–1: bottomNeeded=false (in next)
+    //   cols 2–15: bottomNeeded=true (not in next)
+    const range = { startOffset: 0, endOffset: 34 };
+
+    it('row 1 splits into 2 spans', () => {
+      const segs = computeSegmentsForRange(1, range, 'p', false);
+      expect(segs).toHaveLength(2);
+    });
+
+    it('first span (cols 0–1) has bottomNeeded=false', () => {
+      const segs = computeSegmentsForRange(1, range, 'p', false);
+      expect(segs[0]).toMatchObject({ borderBottom: false, borderLeft: true, borderRight: false });
+      expect(segs[0].width).toBe(2 * CELL_WIDTH_PX);
+    });
+
+    it('second span (cols 2–15) has bottomNeeded=true', () => {
+      const segs = computeSegmentsForRange(1, range, 'p', false);
+      expect(segs[1]).toMatchObject({ borderBottom: true, borderLeft: false, borderRight: true });
+      expect(segs[1].width).toBe(14 * CELL_WIDTH_PX);
+    });
+  });
+
+  describe('span split — both top and bottom vary (range [4, 34])', () => {
+    // R1=0,C1=4; R2=2,C2=1
+    // row 1: current [0,15], prev [4,15], next [0,1]
+    //   top:    cols 0–3 true, cols 4–15 false
+    //   bottom: cols 0–1 false, cols 2–15 true
+    // combinations:
+    //   cols 0–1:  top=true,  bottom=false
+    //   cols 2–3:  top=true,  bottom=true
+    //   cols 4–15: top=false, bottom=true (next=[0,1] so cols 4–15 not in next → bottom=true)
+    // → 3 spans
     const range = { startOffset: 4, endOffset: 34 };
 
-    it('row R1+1 has a step_top segment when C1 > 0', () => {
-      const segs = computeRangeSegments(1, range, 'p', false);
-      const stepTop = segs.find(s => s.key === 'p_step_top');
-      expect(stepTop).toBeDefined();
-      expect(stepTop).toMatchObject({ borderTop: true, borderBottom: false, borderLeft: false, borderRight: false });
+    it('row 1 splits into 3 spans', () => {
+      const segs = computeSegmentsForRange(1, range, 'p', false);
+      expect(segs).toHaveLength(3);
     });
 
-    it('row R2-1 has a step_bottom segment when C2 < 15', () => {
-      const segs = computeRangeSegments(1, range, 'p', false);
-      const stepBottom = segs.find(s => s.key === 'p_step_bottom');
-      expect(stepBottom).toBeDefined();
-      expect(stepBottom).toMatchObject({ borderTop: false, borderBottom: true, borderLeft: false, borderRight: false });
-    });
-  });
-
-  describe('split range (2 rows, C1 > C2)', () => {
-    // offsets 10–21: R1=0,C1=10; R2=1,C2=5; C1>C2 and R2=R1+1 → split
-    const range = { startOffset: 10, endOffset: 22 };
-
-    it('row 0 is a self-contained rectangle with all borders', () => {
-      const segs = computeRangeSegments(0, range, 'p', false);
-      expect(segs).toHaveLength(1);
-      expect(segs[0]).toMatchObject({ borderTop: true, borderBottom: true, borderLeft: true, borderRight: true });
-      expect(segs.find(s => s.key.includes('step'))).toBeUndefined();
+    it('span cols 0–1: top=true, bottom=false', () => {
+      const segs = computeSegmentsForRange(1, range, 'p', false);
+      expect(segs[0]).toMatchObject({ borderTop: true, borderBottom: false, borderLeft: true, borderRight: false });
     });
 
-    it('row 1 is also a self-contained rectangle with all borders', () => {
-      const segs = computeRangeSegments(1, range, 'p', false);
-      expect(segs).toHaveLength(1);
-      expect(segs[0]).toMatchObject({ borderTop: true, borderBottom: true, borderLeft: true, borderRight: true });
+    it('span cols 2–3: top=true, bottom=true', () => {
+      const segs = computeSegmentsForRange(1, range, 'p', false);
+      expect(segs[1]).toMatchObject({ borderTop: true, borderBottom: true, borderLeft: false, borderRight: false });
+    });
+
+    it('span cols 4–15: top=false, bottom=true', () => {
+      const segs = computeSegmentsForRange(1, range, 'p', false);
+      expect(segs[2]).toMatchObject({ borderTop: false, borderBottom: true, borderLeft: false, borderRight: true });
     });
   });
 });
