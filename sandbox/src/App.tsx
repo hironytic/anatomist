@@ -1,5 +1,5 @@
-import { Anatomist, FocusMessage, SpanList } from '@hironytic/anatomist';
-import type { Atlas, SpanListItem } from '@hironytic/anatomist';
+import { Anatomist, FocusMessage, SpanListView } from '@hironytic/anatomist';
+import type { Atlas, HexRange, SpanListViewItem } from '@hironytic/anatomist';
 import '@hironytic/anatomist/style.css';
 
 const FOCUS_SIZE = 36;
@@ -13,11 +13,16 @@ function toRegionTitle(start: number): string {
   return 'Region from 0x' + start.toString(16).toUpperCase().padStart(4, '0');
 }
 
+function makeJumpTargetRange(target: number, dataLength: number): HexRange | undefined {
+  const end = target + FOCUS_SIZE;
+  return target >= 0 && end <= dataLength ? { startOffset: target, endOffset: end } : undefined;
+}
+
 function buildItems(
   data: Uint8Array,
   focusStart: number,
   onJump: (newStart: number) => void,
-): { items: SpanListItem[]; jumpTargetMap: Map<string | number, number> } {
+): SpanListViewItem[] {
   const view = new DataView(data.buffer, data.byteOffset + focusStart, FOCUS_SIZE);
 
   const rawHex = Array.from(data.subarray(focusStart, focusStart + 6))
@@ -26,12 +31,10 @@ function buildItems(
 
   const int8At34 = view.getInt8(34);
   const int8At35 = view.getInt8(35);
+  const jumpTarget34 = focusStart + int8At34;
+  const jumpTarget35 = focusStart + int8At35;
 
-  const jumpTargetMap = new Map<string | number, number>();
-  jumpTargetMap.set(7, focusStart + int8At34);
-  jumpTargetMap.set(8, focusStart + int8At35);
-
-  const items: SpanListItem[] = [
+  return [
     { id: 0, startOffset: 0, endOffset: 6, name: 'Raw bytes', value: rawHex },
     { id: 1, startOffset: 6, endOffset: 14, name: 'float64 LE', value: String(view.getFloat64(6, true)) },
     { id: 2, startOffset: 14, endOffset: 22, name: 'float64 BE', value: String(view.getFloat64(14, false)) },
@@ -45,7 +48,8 @@ function buildItems(
       endOffset: 35,
       name: 'int8',
       value: String(int8At34),
-      onJump: () => onJump(focusStart + int8At34),
+      jumpTargetRange: makeJumpTargetRange(jumpTarget34, data.length),
+      onJump: () => onJump(jumpTarget34),
     },
     {
       id: 8,
@@ -53,11 +57,10 @@ function buildItems(
       endOffset: 36,
       name: 'int8',
       value: String(int8At35),
-      onJump: () => onJump(focusStart + int8At35),
+      jumpTargetRange: makeJumpTargetRange(jumpTarget35, data.length),
+      onJump: () => onJump(jumpTarget35),
     },
   ];
-
-  return { items, jumpTargetMap };
 }
 
 function showFocusRegion(atlas: Atlas, data: Uint8Array, focusStart: number): void {
@@ -73,35 +76,12 @@ function showFocusRegion(atlas: Atlas, data: Uint8Array, focusStart: number): vo
     return;
   }
 
-  const { items, jumpTargetMap } = buildItems(data, focusStart, (newStart) => showFocusRegion(atlas, data, newStart));
+  const items = buildItems(data, focusStart, (newStart) => showFocusRegion(atlas, data, newStart));
   atlas.setFocusRegion({
     range: { startOffset: focusStart, endOffset: focusEnd },
-    component: SpanList,
+    component: SpanListView,
     title: toRegionTitle(focusStart),
-    props: {
-      items,
-      onItemSelect: (id: string | number) => {
-        const item = items.find((it) => it.id === id);
-        if (item) atlas.setActiveSpan(item.startOffset, item.endOffset);
-      },
-      onJumpHover: (id: string | number | undefined) => {
-        if (id === undefined) {
-          atlas.setSecondaryRange(undefined);
-          return;
-        }
-        const target = jumpTargetMap.get(id);
-        if (target === undefined) {
-          atlas.setSecondaryRange(undefined);
-          return;
-        }
-        const newEnd = target + FOCUS_SIZE;
-        if (target >= 0 && newEnd <= data.length) {
-          atlas.setSecondaryRange({ startOffset: target, endOffset: newEnd });
-        } else {
-          atlas.setSecondaryRange(undefined);
-        }
-      },
-    },
+    props: { atlas, items },
   });
 }
 
