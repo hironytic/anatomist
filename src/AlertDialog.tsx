@@ -74,7 +74,6 @@ export function AlertDialog({ state, onClose }: AlertDialogProps) {
           type="button"
           className="anatomist-dialog__btn anatomist-dialog__btn--primary"
           onClick={handleOk}
-          // eslint-disable-next-line jsx-a11y/no-autofocus
           autoFocus
         >
           OK
