@@ -524,6 +524,105 @@
   border-left: 1px solid var(--anatomist-app-toolbar-border-color);
 }
 
+/* AlertDialog */
+
+:root {
+  --anatomist-dialog-bg: var(--anatomist-hex-view-header-bg, #0d2035);
+  --anatomist-dialog-fg: var(--anatomist-app-fg, #b8d4ed);
+  --anatomist-dialog-border-color: var(--anatomist-hex-view-border-color, #1e3a52);
+  --anatomist-dialog-accent-color: var(--anatomist-hex-range-primary-border-color, #5ab4e2);
+  --anatomist-dialog-shadow: 0 12px 48px rgba(0, 0, 0, 0.7), 0 2px 10px rgba(0, 0, 0, 0.45);
+  --anatomist-dialog-backdrop: rgba(0, 12, 26, 0.76);
+  --anatomist-dialog-btn-primary-bg: var(--anatomist-hex-range-primary-border-color, #5ab4e2);
+  --anatomist-dialog-btn-primary-fg: #0a1929;
+  --anatomist-dialog-btn-primary-hover-bg: #72c4ee;
+  --anatomist-dialog-btn-ghost-fg: var(--anatomist-app-fg, #b8d4ed);
+  --anatomist-dialog-btn-ghost-border: var(--anatomist-hex-view-border-color, #1e3a52);
+  --anatomist-dialog-btn-ghost-hover-bg: rgba(90, 180, 226, 0.10);
+}
+
+.anatomist-dialog {
+  border: 1px solid var(--anatomist-dialog-border-color);
+  border-top: 2px solid var(--anatomist-dialog-accent-color);
+  border-radius: 4px;
+  padding: 0;
+  background: var(--anatomist-dialog-bg);
+  color: var(--anatomist-dialog-fg);
+  box-shadow: var(--anatomist-dialog-shadow);
+  font-family: var(--anatomist-ui-font-family);
+  font-size: 13px;
+  min-width: 280px;
+  max-width: 440px;
+  width: calc(100vw - 48px);
+  opacity: 1;
+  transform: scale(1) translateY(0);
+  transition: opacity 0.18s ease, transform 0.18s cubic-bezier(0.2, 0, 0.2, 1);
+}
+
+@starting-style {
+  .anatomist-dialog[open] {
+    opacity: 0;
+    transform: scale(0.94) translateY(-6px);
+  }
+}
+
+.anatomist-dialog::backdrop {
+  background: var(--anatomist-dialog-backdrop);
+  backdrop-filter: blur(2px);
+}
+
+.anatomist-dialog__body {
+  padding: 22px 22px 18px;
+}
+
+.anatomist-dialog__message {
+  margin: 0;
+  line-height: 1.7;
+  color: var(--anatomist-dialog-fg);
+}
+
+.anatomist-dialog__actions {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 0 14px 14px;
+}
+
+.anatomist-dialog__btn {
+  padding: 5px 16px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.5;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+
+.anatomist-dialog__btn--primary {
+  background: var(--anatomist-dialog-btn-primary-bg);
+  color: var(--anatomist-dialog-btn-primary-fg);
+  border-color: var(--anatomist-dialog-btn-primary-bg);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.anatomist-dialog__btn--primary:hover {
+  background: var(--anatomist-dialog-btn-primary-hover-bg);
+  border-color: var(--anatomist-dialog-btn-primary-hover-bg);
+}
+
+.anatomist-dialog__btn--ghost {
+  background: transparent;
+  color: var(--anatomist-dialog-btn-ghost-fg);
+  border-color: var(--anatomist-dialog-btn-ghost-border);
+}
+
+.anatomist-dialog__btn--ghost:hover {
+  background: var(--anatomist-dialog-btn-ghost-hover-bg);
+}
+
 /* ============================================================
  * Light theme — Blueprint Paper (engineering drawing) aesthetic
  *
@@ -560,6 +659,18 @@
     /* Anatomist App */
     --anatomist-app-nav-button-hover-fg: #0a1929;
     --anatomist-app-nav-button-hover-bg: rgba(28, 44, 66, 0.07);
+
+    /* AlertDialog */
+    --anatomist-dialog-bg: #e2eaf4;
+    --anatomist-dialog-fg: #1c2c42;
+    --anatomist-dialog-border-color: #c5d5e8;
+    --anatomist-dialog-shadow: 0 8px 32px rgba(0, 0, 0, 0.18), 0 2px 8px rgba(0, 0, 0, 0.10);
+    --anatomist-dialog-backdrop: rgba(12, 28, 50, 0.48);
+    --anatomist-dialog-btn-primary-hover-bg: #1565c0;
+    --anatomist-dialog-btn-primary-fg: #ffffff;
+    --anatomist-dialog-btn-ghost-fg: #1c2c42;
+    --anatomist-dialog-btn-ghost-border: #c5d5e8;
+    --anatomist-dialog-btn-ghost-hover-bg: rgba(28, 44, 66, 0.07);
   }
 
   .anatomist-app {
@@ -588,6 +699,18 @@
   --anatomist-span-list-item-hover-bg: rgba(28, 44, 66, 0.05);
   --anatomist-app-nav-button-hover-fg: #0a1929;
   --anatomist-app-nav-button-hover-bg: rgba(28, 44, 66, 0.07);
+
+  /* AlertDialog */
+  --anatomist-dialog-bg: #e2eaf4;
+  --anatomist-dialog-fg: #1c2c42;
+  --anatomist-dialog-border-color: #c5d5e8;
+  --anatomist-dialog-shadow: 0 8px 32px rgba(0, 0, 0, 0.18), 0 2px 8px rgba(0, 0, 0, 0.10);
+  --anatomist-dialog-backdrop: rgba(12, 28, 50, 0.48);
+  --anatomist-dialog-btn-primary-hover-bg: #1565c0;
+  --anatomist-dialog-btn-primary-fg: #ffffff;
+  --anatomist-dialog-btn-ghost-fg: #1c2c42;
+  --anatomist-dialog-btn-ghost-border: #c5d5e8;
+  --anatomist-dialog-btn-ghost-hover-bg: rgba(28, 44, 66, 0.07);
 }
 
 .anatomist-theme-light .anatomist-app,
@@ -616,6 +739,18 @@
   --anatomist-span-list-item-hover-bg: rgba(90, 180, 226, 0.07);
   --anatomist-app-nav-button-hover-fg: #e8f4fd;
   --anatomist-app-nav-button-hover-bg: rgba(90, 180, 226, 0.10);
+
+  /* AlertDialog */
+  --anatomist-dialog-bg: #0d2035;
+  --anatomist-dialog-fg: #b8d4ed;
+  --anatomist-dialog-border-color: #1e3a52;
+  --anatomist-dialog-shadow: 0 12px 48px rgba(0, 0, 0, 0.7), 0 2px 10px rgba(0, 0, 0, 0.45);
+  --anatomist-dialog-backdrop: rgba(0, 12, 26, 0.76);
+  --anatomist-dialog-btn-primary-hover-bg: #72c4ee;
+  --anatomist-dialog-btn-primary-fg: #0a1929;
+  --anatomist-dialog-btn-ghost-fg: #b8d4ed;
+  --anatomist-dialog-btn-ghost-border: #1e3a52;
+  --anatomist-dialog-btn-ghost-hover-bg: rgba(90, 180, 226, 0.10);
 }
 
 .anatomist-theme-dark .anatomist-app,

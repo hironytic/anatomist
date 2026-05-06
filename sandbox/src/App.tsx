@@ -1,3 +1,4 @@
+import React from 'react';
 import { Anatomist, FocusMessage, SpanListView } from '@hironytic/anatomist';
 import type { Atlas, HexRange, SpanListViewItem } from '@hironytic/anatomist';
 import '@hironytic/anatomist/style.css';
@@ -16,6 +17,88 @@ function toRegionTitle(start: number): string {
 function makeJumpTargetRange(target: number, dataLength: number): HexRange | undefined {
   const end = target + FOCUS_SIZE;
   return target >= 0 && end <= dataLength ? { startOffset: target, endOffset: end } : undefined;
+}
+
+// --- Dialog API tester ---
+
+function showDialogTester(atlas: Atlas): void {
+  atlas.setFocusRegion({
+    range: { startOffset: 0, endOffset: 1 },
+    component: DialogTester,
+    props: { atlas },
+    title: 'Dialog API tester',
+  });
+}
+
+function DialogTester({ atlas }: { atlas: Atlas }) {
+  const [lastConfirm, setLastConfirm] = React.useState<boolean | null>(null);
+
+  return (
+    <div style={{
+      padding: '24px',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '16px',
+      color: 'var(--anatomist-hex-view-fg)',
+      fontFamily: 'var(--anatomist-ui-font-family)',
+      fontSize: '13px',
+    }}>
+      <div style={{
+        color: 'var(--anatomist-hex-view-header-fg)',
+        fontSize: '11px',
+        textTransform: 'uppercase',
+        letterSpacing: '0.06em',
+      }}>
+        Dialog API tester
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <button
+          onClick={() => atlas.showAlert('This is an alert message from the sandbox.')}
+          style={{
+            alignSelf: 'flex-start',
+            padding: '6px 14px',
+            background: 'transparent',
+            border: '1px solid var(--anatomist-hex-range-primary-border-color)',
+            borderRadius: '4px',
+            color: 'var(--anatomist-hex-range-primary-border-color)',
+            cursor: 'pointer',
+            fontFamily: 'inherit',
+            fontSize: '13px',
+          }}
+        >
+          Show alert
+        </button>
+        <button
+          onClick={async () => {
+            const result = await atlas.showConfirm('Do you confirm this action?');
+            setLastConfirm(result);
+          }}
+          style={{
+            alignSelf: 'flex-start',
+            padding: '6px 14px',
+            background: 'transparent',
+            border: '1px solid var(--anatomist-hex-range-primary-border-color)',
+            borderRadius: '4px',
+            color: 'var(--anatomist-hex-range-primary-border-color)',
+            cursor: 'pointer',
+            fontFamily: 'inherit',
+            fontSize: '13px',
+          }}
+        >
+          Show confirm
+        </button>
+      </div>
+      {lastConfirm !== null && (
+        <div style={{
+          color: 'var(--anatomist-hex-view-header-fg)',
+          fontFamily: 'var(--anatomist-monospace-font-family)',
+          fontSize: '12px',
+        }}>
+          Last confirm: {lastConfirm ? 'OK' : 'Cancel'}
+        </div>
+      )}
+    </div>
+  );
 }
 
 // --- Range pattern viewer ---
@@ -122,6 +205,14 @@ function buildItems(
   const jumpTarget35 = focusStart + int8At35;
 
   return [
+    {
+      id: 101,
+      startOffset: 0,
+      endOffset: 1,
+      name: 'Dialog API tester',
+      value: 'alert / confirm',
+      onJump: () => showDialogTester(atlas),
+    },
     {
       id: 100,
       startOffset: 0,

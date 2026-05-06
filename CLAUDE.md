@@ -20,28 +20,27 @@ It must be installed and built separately from the root.
 
 ## Development Workflow
 
-Two terminals are needed when iterating on the framework while viewing it in the sandbox:
+After editing framework source, rebuild to update `dist/`:
 
 ```
-# Terminal 1 — rebuild framework on every change
-npm run dev
-
-# Terminal 2 — sandbox dev server
-npm run sandbox
+npm run build             # build the framework
+npm run sandbox:build     # build the sandbox (uses the framework dist/)
 ```
 
-The sandbox picks up framework changes automatically because Vite resolves the `file:..`
-symlink and tsup's watch mode rebuilds `dist/` on save.
-
-Other sandbox commands can be run from the root without `cd`:
+Type-check without building:
 
 ```
-npm run sandbox:build     # production build of the sandbox
-npm run sandbox:typecheck # type-check the sandbox
+npm run typecheck                    # type-check the framework
+npm run sandbox:typecheck            # type-check the sandbox
+npm run typecheck --prefix sandbox   # equivalent to the above
 ```
 
-LSP errors in sandbox files are expected before the first build. They resolve once `dist/`
-exists. If no errors remain after building, the code is correct.
+> **Note for AI assistants**: `npm run dev` and `npm run sandbox` start watch-mode
+> servers that never exit. Do **not** run them. Use the build and typecheck commands
+> above instead, and leave UI verification to the user.
+
+LSP errors in sandbox files are expected before the first `npm run build`. They resolve
+once `dist/` exists. If no errors remain after building, the code is correct.
 
 ## Naming Conventions
 

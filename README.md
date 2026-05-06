@@ -88,6 +88,8 @@ The `Atlas` object is passed to your `onLoad` callback when a file is dropped.
 | `atlas.setFocusRegion(region)` | Push a new focus region. Updates the HexView highlight and the right pane. Appends a navigation history entry. |
 | `atlas.setActiveSpan(start, end)` | Highlight a sub-range within the current focus region in HexView. Offsets are relative to the focus region's `startOffset`. |
 | `atlas.setSecondaryRange(range)` | Show a secondary range overlay in HexView alongside the primary range. Pass `undefined` to clear. |
+| `atlas.showAlert(message)` | Show a modal alert dialog with `message`. Returns a `Promise<void>` that resolves when the user dismisses it. |
+| `atlas.showConfirm(message)` | Show a modal confirm dialog with `message`. Returns a `Promise<boolean>` that resolves to `true` when the user clicks OK, or `false` when they click Cancel or press Escape. |
 
 ## Theming
 
@@ -127,6 +129,13 @@ To customize colors, override CSS custom properties on `:root`:
   --anatomist-app-bg: #0a1929;
   --anatomist-app-toolbar-bg: #0d2035;
   --anatomist-app-toolbar-border-color: #1e3a52;
+
+  /* AlertDialog */
+  --anatomist-dialog-bg: #0d2035;
+  --anatomist-dialog-accent-color: #5ab4e2;
+  --anatomist-dialog-border-color: #1e3a52;
+  --anatomist-dialog-btn-primary-bg: #5ab4e2;
+  --anatomist-dialog-btn-primary-fg: #0a1929;
 }
 ```
 

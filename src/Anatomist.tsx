@@ -1,4 +1,5 @@
 import { useRef, useState, type ComponentType, type DragEvent } from 'react';
+import { AlertDialog, type DialogState } from './AlertDialog';
 import { HexView, type HexRange, type PrimaryActiveSpan } from './HexView';
 import { WelcomeView } from './WelcomeView';
 
@@ -44,6 +45,17 @@ export interface Atlas {
    * Pass undefined to clear it.
    */
   setSecondaryRange(range: HexRange | undefined): void;
+  /**
+   * Show a modal alert dialog with the given message. Returns a Promise that
+   * resolves when the user dismisses the dialog.
+   */
+  showAlert(message: string): Promise<void>;
+  /**
+   * Show a modal confirm dialog with the given message. Returns a Promise that
+   * resolves to true if the user clicks OK, or false if they click Cancel or
+   * press Escape.
+   */
+  showConfirm(message: string): Promise<boolean>;
 }
 
 export interface AnatomistProps {
@@ -73,6 +85,7 @@ export function Anatomist({ onLoad, appName, version, description }: AnatomistPr
   const [activeSpan, setActiveSpan] = useState<PrimaryActiveSpan | undefined>(undefined);
   const [secondaryRanges, setSecondaryRanges] = useState<HexRange[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [dialogState, setDialogState] = useState<DialogState>(null);
   const dragDepthRef = useRef(0);
 
   const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
@@ -123,6 +136,14 @@ export function Anatomist({ onLoad, appName, version, description }: AnatomistPr
       },
       setActiveSpan: (start, end) => setActiveSpan({ start, end }),
       setSecondaryRange: (range) => setSecondaryRanges(range ? [range] : []),
+      showAlert: (message) =>
+        new Promise<void>((resolve) => {
+          setDialogState({ kind: 'alert', message, resolve });
+        }),
+      showConfirm: (message) =>
+        new Promise<boolean>((resolve) => {
+          setDialogState({ kind: 'confirm', message, resolve });
+        }),
     };
     onLoad(atlas);
   };
@@ -157,6 +178,9 @@ export function Anatomist({ onLoad, appName, version, description }: AnatomistPr
     return (
       <div className={rootClass} {...dragHandlers}>
         <WelcomeView appName={appName} version={version} description={description} />
+        {dialogState !== null && (
+          <AlertDialog state={dialogState} onClose={() => setDialogState(null)} />
+        )}
       </div>
     );
   }
@@ -168,6 +192,9 @@ export function Anatomist({ onLoad, appName, version, description }: AnatomistPr
 
   return (
     <div className={rootClass} {...dragHandlers}>
+      {dialogState !== null && (
+        <AlertDialog state={dialogState} onClose={() => setDialogState(null)} />
+      )}
       <div className="anatomist-app__toolbar">
         <div className="anatomist-app__nav">
           <button
