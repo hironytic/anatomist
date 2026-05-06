@@ -5,7 +5,6 @@ const ROW_HEIGHT_PX = 24;         // Must match .anatomist-hex-view__row { heigh
 const BUFFER_ROWS = 5;
 const OFFSET_LABEL_WIDTH_PX = 52; // Must match --anatomist-hex-view-offset-label-width in CSS
 const CELL_WIDTH_PX = 28;         // Must match --anatomist-hex-view-cell-width in CSS
-const OVERLAY_INSET_PX = 2;       // Must match --anatomist-hex-range-inset in CSS
 
 const COLUMN_HEADERS = Array.from({ length: BYTES_PER_ROW }, (_, i) =>
   '+' + i.toString(16).toUpperCase()
@@ -43,10 +42,7 @@ export interface HexViewProps {
 interface RangeOverlaySegment {
   key: string;
   isPrimary: boolean;
-  /** Whether to render the primary-range background fill. False for border-only segments. */
-  showBackground: boolean;
-  top: number;
-  bottom: number;
+  isBackground: boolean;
   left: number;
   width: number;
   borderTop: boolean;
@@ -55,121 +51,71 @@ interface RangeOverlaySegment {
   borderRight: boolean;
 }
 
-export function computeRangeSegments(
+function getRowColumns(rowIndex: number, range: HexRange): [number, number] | null {
+  if (range.startOffset >= range.endOffset) return null;
+  const rowStart = rowIndex * BYTES_PER_ROW;
+  const rowEnd = rowStart + BYTES_PER_ROW;
+  if (range.endOffset <= rowStart || range.startOffset >= rowEnd) return null;
+  const cL = Math.max(rowStart, range.startOffset) - rowStart;
+  const cR = Math.min(rowEnd, range.endOffset) - 1 - rowStart;
+  return [cL, cR];
+}
+
+export function computeSegmentsForRange(
   rowIndex: number,
   range: HexRange,
   keyPrefix: string,
   isPrimary: boolean,
 ): RangeOverlaySegment[] {
-  const rowStart = rowIndex * BYTES_PER_ROW;
-  const rowEnd = rowStart + BYTES_PER_ROW;
+  const cols = getRowColumns(rowIndex, range);
+  if (!cols) return [];
+  const [cL, cR] = cols;
 
-  if (range.startOffset >= range.endOffset) return [];
-  if (range.endOffset <= rowStart || range.startOffset >= rowEnd) return [];
-
-  const inset = OVERLAY_INSET_PX;
-  const R1 = Math.floor(range.startOffset / BYTES_PER_ROW);
-  const C1 = range.startOffset % BYTES_PER_ROW;
-  const R2 = Math.floor((range.endOffset - 1) / BYTES_PER_ROW);
-  const C2 = (range.endOffset - 1) % BYTES_PER_ROW;
-  const isMultiRow = R1 !== R2;
-
-  const isFirstRow = rowIndex === R1;
-  const isLastRow = rowIndex === R2;
-  const cL = isFirstRow ? C1 : 0;
-  const cR = isLastRow ? C2 : BYTES_PER_ROW - 1;
-
-  // A 2-row range where the start column is to the right of the end column has no
-  // horizontal overlap between rows, so it renders as two independent rectangles.
-  const isSplit = R2 === R1 + 1 && C1 > C2;
-
-  // Main body: carries left/right borders (always) and top/bottom borders on first/last rows.
-  // For staircase ranges, the first row extends below by -inset and the last row extends
-  // above by -inset so that the step borders connect flush to the vertical borders.
-  // The row just below R1 (if C1>0) and the row just above R2 (if C2<15) shift their
-  // top/bottom by inset so the vertical border begins/ends exactly at the step border.
-  // For split ranges each row is a self-contained rectangle with all four borders.
-  const top    = isSplit ? inset
-               : isFirstRow ? inset
-               : (isLastRow && isMultiRow) ? -inset
-               : (isMultiRow && C1 > 0 && rowIndex === R1 + 1) ? inset
-               : 0;
-  const bottom = isSplit ? inset
-               : isLastRow ? inset
-               : (isFirstRow && isMultiRow) ? -inset
-               : (isMultiRow && C2 < BYTES_PER_ROW - 1 && rowIndex === R2 - 1) ? inset
-               : 0;
-
-  const bodyLeft  = OFFSET_LABEL_WIDTH_PX + cL * CELL_WIDTH_PX + inset;
-  const bodyWidth = (cR - cL + 1) * CELL_WIDTH_PX - 2 * inset;
+  const prevCols = getRowColumns(rowIndex - 1, range);
+  const nextCols = getRowColumns(rowIndex + 1, range);
 
   const segments: RangeOverlaySegment[] = [];
 
-  // For the primary range the background fill and the borders are rendered as separate
-  // elements so the fill can sit behind the text (z-index: 0) while the borders appear
-  // in front of secondary range borders (z-index: 2 via --primary class).
   if (isPrimary) {
     segments.push({
       key: `${keyPrefix}_bg`,
       isPrimary: true,
-      showBackground: true,
-      top, bottom, left: bodyLeft, width: bodyWidth,
+      isBackground: true,
+      left: OFFSET_LABEL_WIDTH_PX + cL * CELL_WIDTH_PX,
+      width: (cR - cL + 1) * CELL_WIDTH_PX,
       borderTop: false, borderBottom: false, borderLeft: false, borderRight: false,
     });
   }
 
-  segments.push({
-    key: keyPrefix,
-    isPrimary,
-    showBackground: false,
-    top,
-    bottom,
-    left:  bodyLeft,
-    width: bodyWidth,
-    borderTop:    isSplit || isFirstRow,
-    borderBottom: isSplit || isLastRow,
-    borderLeft:   true,
-    borderRight:  true,
-  });
+  const colTopNeeded    = (c: number) => !prevCols || c < prevCols[0] || c > prevCols[1];
+  const colBottomNeeded = (c: number) => !nextCols || c < nextCols[0] || c > nextCols[1];
 
-  // Step borders are only needed for staircase (non-split) shapes.
+  let spanStart  = cL;
+  let spanTop    = colTopNeeded(cL);
+  let spanBottom = colBottomNeeded(cL);
 
-  // Step top: on row R1+1, top border spanning cols [0, C1-1].
-  // Placed at top=inset so it is uniformly inset from the row boundary.
-  // Its right end aligns with R1's left border; R1's bottom:-inset extension meets it there.
-  if (!isSplit && isMultiRow && C1 > 0 && rowIndex === R1 + 1) {
-    segments.push({
-      key: `${keyPrefix}_step_top`,
-      isPrimary,
-      showBackground: false,
-      top:    inset,
-      bottom: 0,
-      left:   OFFSET_LABEL_WIDTH_PX + inset,
-      width:  C1 * CELL_WIDTH_PX,
-      borderTop:    true,
-      borderBottom: false,
-      borderLeft:   false,
-      borderRight:  false,
-    });
-  }
+  for (let c = cL + 1; c <= cR + 1; c++) {
+    const done = c > cR;
+    const nextTop    = done ? false : colTopNeeded(c);
+    const nextBottom = done ? false : colBottomNeeded(c);
 
-  // Step bottom: on row R2-1, bottom border spanning cols [C2+1, 15].
-  // Placed at bottom=inset so it is uniformly inset from the row boundary.
-  // Its left end aligns with R2's right border; R2's top:-inset extension meets it there.
-  if (!isSplit && isMultiRow && C2 < BYTES_PER_ROW - 1 && rowIndex === R2 - 1) {
-    segments.push({
-      key: `${keyPrefix}_step_bottom`,
-      isPrimary,
-      showBackground: false,
-      top:    0,
-      bottom: inset,
-      left:   OFFSET_LABEL_WIDTH_PX + (C2 + 1) * CELL_WIDTH_PX - inset,
-      width:  (BYTES_PER_ROW - 1 - C2) * CELL_WIDTH_PX,
-      borderTop:    false,
-      borderBottom: true,
-      borderLeft:   false,
-      borderRight:  false,
-    });
+    if (done || nextTop !== spanTop || nextBottom !== spanBottom) {
+      const sR = c - 1;
+      segments.push({
+        key: `${keyPrefix}_${spanStart}`,
+        isPrimary,
+        isBackground: false,
+        left: OFFSET_LABEL_WIDTH_PX + spanStart * CELL_WIDTH_PX,
+        width: (sR - spanStart + 1) * CELL_WIDTH_PX,
+        borderTop: spanTop,
+        borderBottom: spanBottom,
+        borderLeft: spanStart === cL,
+        borderRight: sR === cR,
+      });
+      spanStart  = c;
+      spanTop    = nextTop;
+      spanBottom = nextBottom;
+    }
   }
 
   return segments;
@@ -183,11 +129,11 @@ export function computeRowOverlays(
   const segments: RangeOverlaySegment[] = [];
 
   for (let i = 0; i < secondaryRanges.length; i++) {
-    segments.push(...computeRangeSegments(rowIndex, secondaryRanges[i], `s${i}`, false));
+    segments.push(...computeSegmentsForRange(rowIndex, secondaryRanges[i], `s${i}`, false));
   }
 
   if (primaryRange) {
-    segments.push(...computeRangeSegments(rowIndex, primaryRange, 'p', true));
+    segments.push(...computeSegmentsForRange(rowIndex, primaryRange, 'p', true));
   }
 
   return segments;
@@ -294,13 +240,13 @@ export function HexView({ data, primaryRange, secondaryRanges = [], activeSpan }
         seg.borderLeft     ? 'anatomist-hex-view__range-overlay--border-left'   : '',
         seg.borderRight    ? 'anatomist-hex-view__range-overlay--border-right'  : '',
         seg.isPrimary      ? 'anatomist-hex-view__range-overlay--primary'       : '',
-        seg.showBackground ? 'anatomist-hex-view__range-overlay--primary-bg'    : '',
+        seg.isBackground   ? 'anatomist-hex-view__range-overlay--primary-bg'    : '',
       ].filter(Boolean).join(' ');
       return (
         <div
           key={seg.key}
           className={cls}
-          style={{ top: seg.top, bottom: seg.bottom, left: seg.left, width: seg.width }}
+          style={{ top: 0, bottom: 0, left: seg.left, width: seg.width }}
         />
       );
     });
