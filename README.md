@@ -28,26 +28,20 @@ import '@hironytic/anatomist/style.css';
 Drop an `<Anatomist>` component into your app and supply an `onLoad` callback. When the user drops a file onto the UI, `onLoad` receives an `Atlas` handle that you use to drive the display.
 
 ```tsx
-import { Anatomist, SpanList } from '@hironytic/anatomist';
-import type { Atlas, SpanListItem } from '@hironytic/anatomist';
+import { Anatomist, SpanListView } from '@hironytic/anatomist';
+import type { Atlas, SpanListViewItem } from '@hironytic/anatomist';
 import '@hironytic/anatomist/style.css';
 
 function parseFile(atlas: Atlas) {
-  const items: SpanListItem[] = [
+  const items: SpanListViewItem[] = [
     { id: 0, startOffset: 0, endOffset: 4, name: 'Magic bytes', value: '...' },
     // ...
   ];
 
   atlas.setFocusRegion({
     range: { startOffset: 0, endOffset: atlas.data.length },
-    component: SpanList,
-    props: {
-      items,
-      onItemSelect: (id) => {
-        const item = items.find((it) => it.id === id);
-        if (item) atlas.setActiveSpan(item.startOffset, item.endOffset);
-      },
-    },
+    component: SpanListView,
+    props: { atlas, items },
     title: 'File overview',
   });
 }
@@ -81,6 +75,7 @@ For full prop types, refer to the TypeScript definitions bundled with the packag
 |---|---|
 | `<Anatomist>` | Root component. Handles file drop, layout, and navigation history. |
 | `<SpanList>` | Field list with keyboard navigation and optional jump buttons. |
+| `<SpanListView>` | `SpanList` wrapper that wires `atlas.setActiveSpan` on selection and `atlas.setSecondaryRange` on jump-button hover automatically. Accepts an `atlas` prop and `SpanListViewItem[]` items (which extend `SpanListItem` with an optional `jumpTargetRange`). |
 | `<FocusMessage>` | Centered info/error message for the right pane. |
 
 ## Atlas API
