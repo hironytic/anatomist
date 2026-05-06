@@ -276,7 +276,7 @@ export function App() {
   return (
     <Anatomist
       appName="Anatomist Sandbox"
-      version="v0.1.0"
+      version="v0.0.0"
       description="A sandbox app for validating the Anatomist framework."
       onLoad={(atlas) => showFocusRegion(atlas, atlas.data, 0)}
     />
