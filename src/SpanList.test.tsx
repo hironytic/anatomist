@@ -81,7 +81,7 @@ describe('SpanList', () => {
     expect(onItemSelect).toHaveBeenLastCalledWith('a');
   });
 
-  it('ArrowRight calls onJump for the selected item', () => {
+  it('Enter calls onJump for the selected item', () => {
     const onJump = vi.fn();
     const items: SpanListItem[] = [
       { ...baseItems[0], onJump },
@@ -91,8 +91,27 @@ describe('SpanList', () => {
     render(<SpanList items={items} onItemSelect={onItemSelect} />);
     const list = screen.getByRole('listbox');
     fireEvent.keyDown(list, { key: 'ArrowDown' });
-    fireEvent.keyDown(list, { key: 'ArrowRight' });
+    fireEvent.keyDown(list, { key: 'Enter' });
     expect(onJump).toHaveBeenCalledOnce();
+  });
+
+  it('j key moves selection to the next item', () => {
+    const onItemSelect = vi.fn();
+    render(<SpanList items={baseItems} onItemSelect={onItemSelect} />);
+    const list = screen.getByRole('listbox');
+    fireEvent.keyDown(list, { key: 'j' });
+    fireEvent.keyDown(list, { key: 'j' });
+    expect(onItemSelect).toHaveBeenLastCalledWith('b');
+  });
+
+  it('k key moves selection to the previous item', () => {
+    const onItemSelect = vi.fn();
+    render(<SpanList items={baseItems} onItemSelect={onItemSelect} />);
+    const list = screen.getByRole('listbox');
+    fireEvent.keyDown(list, { key: 'j' });
+    fireEvent.keyDown(list, { key: 'j' });
+    fireEvent.keyDown(list, { key: 'k' });
+    expect(onItemSelect).toHaveBeenLastCalledWith('a');
   });
 
   it('shows jump button only for items with onJump', () => {

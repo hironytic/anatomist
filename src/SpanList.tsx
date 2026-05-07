@@ -45,19 +45,19 @@ export function SpanList({ items, onItemSelect, onJumpHover, focusOnMount }: Spa
 
   function handleKeyDown(e: React.KeyboardEvent) {
     if (items.length === 0) return;
-    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'j' || e.key === 'k') {
       e.preventDefault();
       const currentIndex = selectedItemId !== undefined
         ? items.findIndex(item => item.id === selectedItemId)
         : -1;
       let nextIndex: number;
-      if (e.key === 'ArrowDown') {
+      if (e.key === 'ArrowDown' || e.key === 'j') {
         nextIndex = currentIndex === -1 ? 0 : Math.min(currentIndex + 1, items.length - 1);
       } else {
         nextIndex = currentIndex === -1 ? items.length - 1 : Math.max(currentIndex - 1, 0);
       }
       selectItem(items[nextIndex].id);
-    } else if (e.key === 'ArrowRight') {
+    } else if (e.key === 'Enter') {
       e.preventDefault();
       if (selectedItemId !== undefined) {
         items.find(item => item.id === selectedItemId)?.onJump?.();
