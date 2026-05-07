@@ -4,7 +4,7 @@ type ActiveDialogState =
   | { kind: 'alert'; message: string; resolve: () => void }
   | { kind: 'confirm'; message: string; resolve: (result: boolean) => void };
 
-export type DialogState = ActiveDialogState | null;
+export type DialogState = ActiveDialogState | undefined;
 
 interface AlertDialogProps {
   state: ActiveDialogState;

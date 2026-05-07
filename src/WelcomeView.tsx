@@ -5,7 +5,7 @@ export interface WelcomeViewProps {
 }
 
 export function WelcomeView({ appName, version, description }: WelcomeViewProps) {
-  const hasIdentity = appName != null || version != null || description != null;
+  const hasIdentity = appName !== undefined || version !== undefined || description !== undefined;
   return (
     <div className="anatomist-welcome-view">
       {hasIdentity && (
