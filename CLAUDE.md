@@ -68,3 +68,4 @@ Consumers import it as `@hironytic/anatomist/style.css`.
 - **No bundled parser**: the framework receives already-parsed data structures; parsing is the consumer's responsibility.
 - **CSS Custom Properties for theming**: no CSS-in-JS, no external styling library. Consumers override variables in `:root`.
 - **Peer dependencies**: `react` and `react-dom` are peer deps (`>=19`) so consumers use their own React instance.
+- **`undefined` over `null`**: use `undefined` to represent the absence of a value. `null` is only acceptable where the DOM, browser APIs, or third-party libraries explicitly require it (e.g. `useRef<T>(null)`). Values received as `null` from external sources should be converted with `?? undefined` before use in internal code.

@@ -80,12 +80,12 @@ interface NavigationState {
 const EMPTY_NAV: NavigationState = { entries: [], index: -1 };
 
 export function Anatomist({ onLoad, appName, version, description }: AnatomistProps) {
-  const [data, setData] = useState<Uint8Array | null>(null);
+  const [data, setData] = useState<Uint8Array | undefined>(undefined);
   const [nav, setNav] = useState<NavigationState>(EMPTY_NAV);
   const [activeSpan, setActiveSpan] = useState<PrimaryActiveSpan | undefined>(undefined);
   const [secondaryRanges, setSecondaryRanges] = useState<HexRange[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
-  const [dialogState, setDialogState] = useState<DialogState>(null);
+  const [dialogState, setDialogState] = useState<DialogState>(undefined);
   const dragDepthRef = useRef(0);
 
   const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
@@ -172,14 +172,14 @@ export function Anatomist({ onLoad, appName, version, description }: AnatomistPr
   const rootClass =
     'anatomist-app' +
     (isDragOver ? ' anatomist-app--drag-over' : '') +
-    (data === null ? ' anatomist-app--empty' : '');
+    (data === undefined ? ' anatomist-app--empty' : '');
 
-  if (data === null) {
+  if (data === undefined) {
     return (
       <div className={rootClass} {...dragHandlers}>
         <WelcomeView appName={appName} version={version} description={description} />
-        {dialogState !== null && (
-          <AlertDialog state={dialogState} onClose={() => setDialogState(null)} />
+        {dialogState !== undefined && (
+          <AlertDialog state={dialogState} onClose={() => setDialogState(undefined)} />
         )}
       </div>
     );
@@ -192,8 +192,8 @@ export function Anatomist({ onLoad, appName, version, description }: AnatomistPr
 
   return (
     <div className={rootClass} {...dragHandlers}>
-      {dialogState !== null && (
-        <AlertDialog state={dialogState} onClose={() => setDialogState(null)} />
+      {dialogState !== undefined && (
+        <AlertDialog state={dialogState} onClose={() => setDialogState(undefined)} />
       )}
       <div className="anatomist-app__toolbar">
         <div className="anatomist-app__nav">
@@ -234,7 +234,7 @@ export function Anatomist({ onLoad, appName, version, description }: AnatomistPr
           <HexView data={data} primaryRange={current?.range} activeSpan={activeSpan} secondaryRanges={secondaryRanges} />
         </div>
         <div className="anatomist-app__focus-region">
-          {Focused ? <Focused key={nav.index} {...(current!.props as object)} /> : null}
+          {Focused ? <Focused key={nav.index} {...(current!.props as object)} /> : undefined}
         </div>
       </div>
     </div>

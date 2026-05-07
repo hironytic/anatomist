@@ -31,7 +31,7 @@ function showDialogTester(atlas: Atlas): void {
 }
 
 function DialogTester({ atlas }: { atlas: Atlas }) {
-  const [lastConfirm, setLastConfirm] = React.useState<boolean | null>(null);
+  const [lastConfirm, setLastConfirm] = React.useState<boolean | undefined>(undefined);
 
   return (
     <div style={{
@@ -88,7 +88,7 @@ function DialogTester({ atlas }: { atlas: Atlas }) {
           Show confirm
         </button>
       </div>
-      {lastConfirm !== null && (
+      {lastConfirm !== undefined && (
         <div style={{
           color: 'var(--anatomist-hex-view-header-fg)',
           fontFamily: 'var(--anatomist-monospace-font-family)',

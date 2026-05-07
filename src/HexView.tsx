@@ -51,11 +51,11 @@ interface RangeOverlaySegment {
   borderRight: boolean;
 }
 
-function getRowColumns(rowIndex: number, range: HexRange): [number, number] | null {
-  if (range.startOffset >= range.endOffset) return null;
+function getRowColumns(rowIndex: number, range: HexRange): [number, number] | undefined {
+  if (range.startOffset >= range.endOffset) return undefined;
   const rowStart = rowIndex * BYTES_PER_ROW;
   const rowEnd = rowStart + BYTES_PER_ROW;
-  if (range.endOffset <= rowStart || range.startOffset >= rowEnd) return null;
+  if (range.endOffset <= rowStart || range.startOffset >= rowEnd) return undefined;
   const cL = Math.max(rowStart, range.startOffset) - rowStart;
   const cR = Math.min(rowEnd, range.endOffset) - 1 - rowStart;
   return [cL, cR];
