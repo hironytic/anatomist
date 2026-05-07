@@ -65,4 +65,5 @@ sandbox/node_modules/
 sandbox/dist/
 .idea/
 *.local.md
+.claude/worktrees/
 
