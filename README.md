@@ -74,7 +74,7 @@ For full prop types, refer to the TypeScript definitions bundled with the packag
 | Component | Description |
 |---|---|
 | `<Anatomist>` | Root component. Handles file drop, layout, and navigation history. |
-| `<SpanList>` | Field list with keyboard navigation and optional jump buttons. |
+| `<SpanList>` | Field list with keyboard navigation and optional jump buttons. Accepts a `focusOnMount` boolean prop to automatically focus the list when it mounts. |
 | `<SpanListView>` | `SpanList` wrapper that wires `atlas.setActiveSpan` on selection and `atlas.setSecondaryRange` on jump-button hover automatically. Accepts an `atlas` prop and `SpanListViewItem[]` items (which extend `SpanListItem` with an optional `jumpTargetRange`). |
 | `<FocusMessage>` | Centered info/error message for the right pane. |
 

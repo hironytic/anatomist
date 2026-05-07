@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export interface SpanListItem {
   /** Unique identifier used as a React key and for selection matching. */
@@ -19,15 +19,23 @@ export interface SpanListProps {
   items: SpanListItem[];
   onItemSelect?: (id: string | number) => void;
   onJumpHover?: (id: string | number | undefined) => void;
+  /** When true, the list receives focus immediately after mounting. */
+  focusOnMount?: boolean;
 }
 
 export function formatOffset(offset: number): string {
   return offset.toString(16).toUpperCase().padStart(4, '0');
 }
 
-export function SpanList({ items, onItemSelect, onJumpHover }: SpanListProps) {
+export function SpanList({ items, onItemSelect, onJumpHover, focusOnMount }: SpanListProps) {
   const [selectedItemId, setSelectedItemId] = useState<string | number | undefined>(undefined);
   const itemRefs = useRef<Map<string | number, HTMLDivElement>>(new Map());
+  const rootRef = useRef<HTMLDivElement>(null);
+  const focusOnMountRef = useRef(focusOnMount);
+
+  useEffect(() => {
+    if (focusOnMountRef.current) rootRef.current?.focus();
+  }, []);
 
   function selectItem(id: string | number) {
     setSelectedItemId(id);
@@ -58,7 +66,7 @@ export function SpanList({ items, onItemSelect, onJumpHover }: SpanListProps) {
   }
 
   return (
-    <div className="anatomist-span-list" tabIndex={0} role="listbox" onKeyDown={handleKeyDown}>
+    <div ref={rootRef} className="anatomist-span-list" tabIndex={0} role="listbox" onKeyDown={handleKeyDown}>
       {items.map(item => {
         const isSelected = item.id === selectedItemId;
         const offsetLabel = `${formatOffset(item.startOffset)}–${formatOffset(item.endOffset - 1)}`;

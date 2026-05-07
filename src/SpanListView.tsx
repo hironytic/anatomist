@@ -36,6 +36,7 @@ export function SpanListView({ atlas, items }: SpanListViewProps) {
         const item = items.find((it) => it.id === id);
         atlas.setSecondaryRange(item?.jumpTargetRange);
       }}
+      focusOnMount
     />
   );
 }
