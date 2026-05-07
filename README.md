@@ -78,6 +78,16 @@ For full prop types, refer to the TypeScript definitions bundled with the packag
 | `<SpanListView>` | `SpanList` wrapper that wires `atlas.setActiveSpan` on selection and `atlas.setSecondaryRange` on jump-button hover automatically. Accepts an `atlas` prop and `SpanListViewItem[]` items (which extend `SpanListItem` with an optional `jumpTargetRange`). |
 | `<FocusMessage>` | Centered info/error message for the right pane. |
 
+## Keyboard Shortcuts
+
+| Context | Key | Action |
+|---|---|---|
+| `<Anatomist>` | `[` | Navigate history backward |
+| `<Anatomist>` | `]` | Navigate history forward |
+| `<SpanList>` | `↑` / `k` | Move selection up |
+| `<SpanList>` | `↓` / `j` | Move selection down |
+| `<SpanList>` | `Enter` | Jump to the selected span's target range |
+
 ## Atlas API
 
 The `Atlas` object is passed to your `onLoad` callback when a file is dropped.
