@@ -48,7 +48,7 @@ describe('Anatomist', () => {
       await dropFile(container.firstElementChild!, makeFile(new Array(32).fill(0)));
       await waitFor(() => expect(onLoad).toHaveBeenCalledOnce());
       const atlas: Atlas = onLoad.mock.calls[0][0];
-      return { atlas };
+      return { atlas, container };
     }
 
     it('back button is disabled before any setFocusRegion call', async () => {
@@ -93,6 +93,35 @@ describe('Anatomist', () => {
       fireEvent.click(screen.getByRole('button', { name: 'Go back' }));
       expect(screen.getByText('Step 1')).toBeInTheDocument();
       fireEvent.click(screen.getByRole('button', { name: 'Go forward' }));
+      expect(screen.getByText('Step 2')).toBeInTheDocument();
+    });
+
+    it('[ key navigates back', async () => {
+      const { atlas, container } = await setup();
+      act(() => {
+        atlas.setFocusRegion({ range: { startOffset: 0, endOffset: 4 }, component: FocusComp, props: {}, title: 'Step 1' });
+      });
+      act(() => {
+        atlas.setFocusRegion({ range: { startOffset: 4, endOffset: 8 }, component: FocusComp, props: {}, title: 'Step 2' });
+      });
+
+      expect(screen.getByText('Step 2')).toBeInTheDocument();
+      fireEvent.keyDown(container.firstElementChild!, { key: '[' });
+      expect(screen.getByText('Step 1')).toBeInTheDocument();
+    });
+
+    it('] key navigates forward', async () => {
+      const { atlas, container } = await setup();
+      act(() => {
+        atlas.setFocusRegion({ range: { startOffset: 0, endOffset: 4 }, component: FocusComp, props: {}, title: 'Step 1' });
+      });
+      act(() => {
+        atlas.setFocusRegion({ range: { startOffset: 4, endOffset: 8 }, component: FocusComp, props: {}, title: 'Step 2' });
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: 'Go back' }));
+      expect(screen.getByText('Step 1')).toBeInTheDocument();
+      fireEvent.keyDown(container.firstElementChild!, { key: ']' });
       expect(screen.getByText('Step 2')).toBeInTheDocument();
     });
   });

@@ -162,6 +162,17 @@ export function Anatomist({ onLoad, appName, version, description }: AnatomistPr
     setSecondaryRanges([]);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (dialogState !== undefined) return;
+    if (e.key === '[') {
+      e.preventDefault();
+      handleBack();
+    } else if (e.key === ']') {
+      e.preventDefault();
+      handleForward();
+    }
+  };
+
   const dragHandlers = {
     onDragOver: handleDragOver,
     onDragEnter: handleDragEnter,
@@ -191,7 +202,7 @@ export function Anatomist({ onLoad, appName, version, description }: AnatomistPr
   const canGoForward = nav.index < nav.entries.length - 1;
 
   return (
-    <div className={rootClass} {...dragHandlers}>
+    <div className={rootClass} {...dragHandlers} onKeyDown={handleKeyDown}>
       {dialogState !== undefined && (
         <AlertDialog state={dialogState} onClose={() => setDialogState(undefined)} />
       )}
