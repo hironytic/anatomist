@@ -292,6 +292,9 @@
   --anatomist-welcome-view-version-fg: var(--anatomist-app-empty-fg, #5c85a8);
   --anatomist-welcome-view-description-fg: var(--anatomist-app-empty-fg, #5c85a8);
   --anatomist-welcome-view-prompt-fg: var(--anatomist-app-empty-fg, #5c85a8);
+  --anatomist-welcome-view-select-button-bg: var(--anatomist-welcome-view-icon-color);
+  --anatomist-welcome-view-select-button-fg: #061a2e;
+  --anatomist-welcome-view-select-button-hover-bg: #7ecbee;
 }
 
 .anatomist-welcome-view {
@@ -346,45 +349,52 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 18px;
   animation: anatomist-welcome-view-in 0.4s ease-out 0.12s both;
 }
 
 .anatomist-welcome-view__icon {
   overflow: visible;
   color: var(--anatomist-welcome-view-icon-color);
-  opacity: 0.8;
+  opacity: 0.75;
   flex-shrink: 0;
-  filter: drop-shadow(0 2px 10px color-mix(in srgb, var(--anatomist-welcome-view-icon-color) 35%, transparent));
+  filter: drop-shadow(0 2px 12px color-mix(in srgb, var(--anatomist-welcome-view-icon-color) 40%, transparent));
+}
+
+.anatomist-welcome-view__select-button {
+  display: inline-block;
+  background: var(--anatomist-welcome-view-select-button-bg);
+  color: var(--anatomist-welcome-view-select-button-fg);
+  border: none;
+  border-radius: 7px;
+  padding: 10px 28px;
+  font-family: var(--anatomist-ui-font-family);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--anatomist-welcome-view-select-button-bg) 40%, transparent);
+}
+
+.anatomist-welcome-view__select-button:hover {
+  background: var(--anatomist-welcome-view-select-button-hover-bg);
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--anatomist-welcome-view-select-button-bg) 50%, transparent);
+  transform: translateY(-1px);
+}
+
+.anatomist-welcome-view__select-button:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 4px color-mix(in srgb, var(--anatomist-welcome-view-select-button-bg) 30%, transparent);
 }
 
 .anatomist-welcome-view__prompt {
   margin: 0;
-  font-size: 13px;
+  font-size: 12px;
   color: var(--anatomist-welcome-view-prompt-fg);
   text-align: center;
-  letter-spacing: 0.03em;
-  opacity: 0.7;
-}
-
-.anatomist-welcome-view__select-button {
-  background: none;
-  border: none;
-  padding: 0;
-  margin-top: 2px;
-  font-family: var(--anatomist-ui-font-family);
-  font-size: 12px;
-  color: var(--anatomist-welcome-view-icon-color);
-  opacity: 0.6;
-  cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  letter-spacing: 0.03em;
-  transition: opacity 0.15s ease;
-}
-
-.anatomist-welcome-view__select-button:hover {
-  opacity: 1;
+  letter-spacing: 0.04em;
+  opacity: 0.45;
 }
 
 @keyframes anatomist-welcome-view-in {
@@ -681,6 +691,10 @@
     --anatomist-app-nav-button-hover-fg: #0a1929;
     --anatomist-app-nav-button-hover-bg: rgba(28, 44, 66, 0.07);
 
+    /* WelcomeView */
+    --anatomist-welcome-view-select-button-fg: #ffffff;
+    --anatomist-welcome-view-select-button-hover-bg: #1e88e5;
+
     /* AlertDialog */
     --anatomist-dialog-bg: #e2eaf4;
     --anatomist-dialog-fg: #1c2c42;
@@ -720,6 +734,10 @@
   --anatomist-span-list-item-hover-bg: rgba(28, 44, 66, 0.05);
   --anatomist-app-nav-button-hover-fg: #0a1929;
   --anatomist-app-nav-button-hover-bg: rgba(28, 44, 66, 0.07);
+
+  /* WelcomeView */
+  --anatomist-welcome-view-select-button-fg: #ffffff;
+  --anatomist-welcome-view-select-button-hover-bg: #1e88e5;
 
   /* AlertDialog */
   --anatomist-dialog-bg: #e2eaf4;

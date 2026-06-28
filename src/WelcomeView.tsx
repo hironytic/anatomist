@@ -52,16 +52,18 @@ export function WelcomeView({ appName, version, description, onSelectFile }: Wel
             strokeLinejoin="round"
           />
         </svg>
-        <p className="anatomist-welcome-view__prompt">Drop a file here</p>
         {onSelectFile !== undefined && (
           <button
             type="button"
             className="anatomist-welcome-view__select-button"
             onClick={onSelectFile}
           >
-            Choose a file
+            Open File
           </button>
         )}
+        <p className="anatomist-welcome-view__prompt">
+          {onSelectFile !== undefined ? 'or drag a file anywhere' : 'Drop a file here'}
+        </p>
       </div>
     </div>
   );

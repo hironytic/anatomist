@@ -17,7 +17,7 @@ async function dropFile(element: Element, file: File): Promise<void> {
 describe('Anatomist', () => {
   it('shows WelcomeView when no file is loaded', () => {
     render(<Anatomist onLoad={() => {}} />);
-    expect(screen.getByText('Drop a file here')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Open File' })).toBeInTheDocument();
   });
 
   it('calls onLoad with an atlas after file drop', async () => {
