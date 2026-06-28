@@ -32,6 +32,21 @@ describe('Anatomist', () => {
     expect(atlas.data).toEqual(new Uint8Array([1, 2, 3]));
   });
 
+  it('calls onLoad with an atlas after file selection via dialog', async () => {
+    const onLoad = vi.fn();
+    render(<Anatomist onLoad={onLoad} />);
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+
+    await act(async () => {
+      fireEvent.change(input, { target: { files: [makeFile([4, 5, 6])] } });
+      await Promise.resolve();
+    });
+
+    await waitFor(() => expect(onLoad).toHaveBeenCalledOnce());
+    const atlas: Atlas = onLoad.mock.calls[0][0];
+    expect(atlas.data).toEqual(new Uint8Array([4, 5, 6]));
+  });
+
   it('hides WelcomeView and shows hex content after file drop', async () => {
     const { container } = render(<Anatomist onLoad={() => {}} />);
     await dropFile(container.firstElementChild!, makeFile([0xde, 0xad]));

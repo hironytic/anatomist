@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { WelcomeView } from './WelcomeView';
 
 describe('WelcomeView', () => {
@@ -30,5 +30,22 @@ describe('WelcomeView', () => {
   it('renders identity section when any prop is provided', () => {
     const { container } = render(<WelcomeView appName="MyApp" />);
     expect(container.querySelector('.anatomist-welcome-view__identity')).toBeInTheDocument();
+  });
+
+  it('does not render select button when onSelectFile is not provided', () => {
+    render(<WelcomeView />);
+    expect(screen.queryByRole('button', { name: 'Choose a file' })).not.toBeInTheDocument();
+  });
+
+  it('renders select button when onSelectFile is provided', () => {
+    render(<WelcomeView onSelectFile={() => {}} />);
+    expect(screen.getByRole('button', { name: 'Choose a file' })).toBeInTheDocument();
+  });
+
+  it('calls onSelectFile when select button is clicked', () => {
+    const onSelectFile = vi.fn();
+    render(<WelcomeView onSelectFile={onSelectFile} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Choose a file' }));
+    expect(onSelectFile).toHaveBeenCalledOnce();
   });
 });

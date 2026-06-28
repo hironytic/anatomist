@@ -2,9 +2,10 @@ export interface WelcomeViewProps {
   appName?: string;
   version?: string;
   description?: string;
+  onSelectFile?: () => void;
 }
 
-export function WelcomeView({ appName, version, description }: WelcomeViewProps) {
+export function WelcomeView({ appName, version, description, onSelectFile }: WelcomeViewProps) {
   const hasIdentity = appName !== undefined || version !== undefined || description !== undefined;
   return (
     <div className="anatomist-welcome-view">
@@ -52,6 +53,15 @@ export function WelcomeView({ appName, version, description }: WelcomeViewProps)
           />
         </svg>
         <p className="anatomist-welcome-view__prompt">Drop a file here</p>
+        {onSelectFile !== undefined && (
+          <button
+            type="button"
+            className="anatomist-welcome-view__select-button"
+            onClick={onSelectFile}
+          >
+            Choose a file
+          </button>
+        )}
       </div>
     </div>
   );

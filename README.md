@@ -25,7 +25,7 @@ import '@hironytic/anatomist/style.css';
 
 ## Quick Start
 
-Drop an `<Anatomist>` component into your app and supply an `onLoad` callback. When the user drops a file onto the UI, `onLoad` receives an `Atlas` handle that you use to drive the display.
+Drop an `<Anatomist>` component into your app and supply an `onLoad` callback. When the user drops a file onto the UI or clicks the "Choose a file" button, `onLoad` receives an `Atlas` handle that you use to drive the display.
 
 ```tsx
 import { Anatomist, SpanListView } from '@hironytic/anatomist';
@@ -62,7 +62,7 @@ export function App() {
 
 The framework provides the UI shell — a hex viewer, a right-side detail pane, and browser-style back/forward navigation. Parsing is your responsibility.
 
-1. The user drops a file onto the `<Anatomist>` component.
+1. The user drops a file onto the `<Anatomist>` component, or clicks the "Choose a file" button to open a file dialog.
 2. Your `onLoad` callback is called with an `Atlas` handle and the file bytes.
 3. You parse the bytes and call `atlas.setFocusRegion()` to populate the hex highlight and the right pane.
 4. Each `setFocusRegion` call appends a navigation history entry. The user can navigate back and forward through the history.
@@ -73,7 +73,7 @@ For full prop types, refer to the TypeScript definitions bundled with the packag
 
 | Component | Description |
 |---|---|
-| `<Anatomist>` | Root component. Handles file drop, layout, and navigation history. |
+| `<Anatomist>` | Root component. Handles file drop, file dialog, layout, and navigation history. |
 | `<SpanList>` | Field list with keyboard navigation and optional jump buttons. Accepts a `focusOnMount` boolean prop to automatically focus the list when it mounts. |
 | `<SpanListView>` | `SpanList` wrapper that wires `atlas.setActiveSpan` on selection and `atlas.setSecondaryRange` on jump-button hover automatically. Accepts an `atlas` prop and `SpanListViewItem[]` items (which extend `SpanListItem` with an optional `jumpTargetRange`). |
 | `<FocusMessage>` | Centered info/error message for the right pane. |
