@@ -1,4 +1,4 @@
-import { useRef, useState, type ComponentType, type DragEvent } from 'react';
+import { useCallback, useRef, useState, type ChangeEvent, type ComponentType, type DragEvent } from 'react';
 import { AlertDialog, type DialogState } from './AlertDialog';
 import { HexView, type HexRange, type PrimaryActiveSpan } from './HexView';
 import { WelcomeView } from './WelcomeView';
@@ -87,6 +87,7 @@ export function Anatomist({ onLoad, appName, version, description }: AnatomistPr
   const [isDragOver, setIsDragOver] = useState(false);
   const [dialogState, setDialogState] = useState<DialogState>(undefined);
   const dragDepthRef = useRef(0);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -104,14 +105,7 @@ export function Anatomist({ onLoad, appName, version, description }: AnatomistPr
     if (dragDepthRef.current === 0) setIsDragOver(false);
   };
 
-  const handleDrop = async (e: DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    dragDepthRef.current = 0;
-    setIsDragOver(false);
-
-    const file = e.dataTransfer.files[0];
-    if (!file) return;
-
+  const loadFile = useCallback(async (file: File) => {
     const buf = new Uint8Array(await file.arrayBuffer());
 
     setData(buf);
@@ -146,7 +140,30 @@ export function Anatomist({ onLoad, appName, version, description }: AnatomistPr
         }),
     };
     onLoad(atlas);
+  }, [onLoad]);
+
+  const handleDrop = async (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    dragDepthRef.current = 0;
+    setIsDragOver(false);
+
+    const file = e.dataTransfer.files[0];
+    if (!file) return;
+
+    await loadFile(file);
   };
+
+  const handleSelectFileClick = useCallback(() => {
+    fileInputRef.current?.click();
+  }, []);
+
+  const handleFileInputChange = useCallback(async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (file === undefined) return;
+
+    await loadFile(file);
+  }, [loadFile]);
 
   const handleBack = () => {
     setNav((prev) => (prev.index > 0 ? { ...prev, index: prev.index - 1 } : prev));
@@ -188,7 +205,18 @@ export function Anatomist({ onLoad, appName, version, description }: AnatomistPr
   if (data === undefined) {
     return (
       <div className={rootClass} {...dragHandlers}>
-        <WelcomeView appName={appName} version={version} description={description} />
+        <input
+          ref={fileInputRef}
+          type="file"
+          style={{ display: 'none' }}
+          onChange={handleFileInputChange}
+        />
+        <WelcomeView
+          appName={appName}
+          version={version}
+          description={description}
+          onSelectFile={handleSelectFileClick}
+        />
         {dialogState !== undefined && (
           <AlertDialog state={dialogState} onClose={() => setDialogState(undefined)} />
         )}

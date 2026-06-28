@@ -17,7 +17,7 @@ async function dropFile(element: Element, file: File): Promise<void> {
 describe('Anatomist', () => {
   it('shows WelcomeView when no file is loaded', () => {
     render(<Anatomist onLoad={() => {}} />);
-    expect(screen.getByText('Drop a file here')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Open File' })).toBeInTheDocument();
   });
 
   it('calls onLoad with an atlas after file drop', async () => {
@@ -30,6 +30,21 @@ describe('Anatomist', () => {
     await waitFor(() => expect(onLoad).toHaveBeenCalledOnce());
     const atlas: Atlas = onLoad.mock.calls[0][0];
     expect(atlas.data).toEqual(new Uint8Array([1, 2, 3]));
+  });
+
+  it('calls onLoad with an atlas after file selection via dialog', async () => {
+    const onLoad = vi.fn();
+    render(<Anatomist onLoad={onLoad} />);
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+
+    await act(async () => {
+      fireEvent.change(input, { target: { files: [makeFile([4, 5, 6])] } });
+      await Promise.resolve();
+    });
+
+    await waitFor(() => expect(onLoad).toHaveBeenCalledOnce());
+    const atlas: Atlas = onLoad.mock.calls[0][0];
+    expect(atlas.data).toEqual(new Uint8Array([4, 5, 6]));
   });
 
   it('hides WelcomeView and shows hex content after file drop', async () => {
