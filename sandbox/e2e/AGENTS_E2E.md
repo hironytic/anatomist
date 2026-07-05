@@ -15,7 +15,8 @@ The whole run takes a few minutes and verifies:
 - Range highlight rendering is correct for 10 representative range shapes.
 
 > **Note for agents**: `CLAUDE.md` forbids running `npm run sandbox` because it
-> never exits. This procedure is the one exception: run it **in the background**,
+> never exits. This procedure is the one exception: run it **in the background**
+> through the watchdog wrapper in [Step 2](#step-2--start-the-sandbox-dev-server),
 > and always stop it at the end (see [Step 10](#step-10--clean-up)).
 
 ## Prerequisites
@@ -57,9 +58,36 @@ old code. Always rebuild first.
 
 ### Step 2 — Start the sandbox dev server
 
-Run `npm run sandbox` **as a background task** (it is a Vite watch server and
-never exits on its own). Read its output to get the URL — normally
-`http://localhost:5173/`, but Vite picks another port if 5173 is busy.
+`npm run sandbox` is a Vite watch server and never exits on its own. Do not
+start it directly: the OS-level sandbox that agent shell commands run under
+only allows signals between processes of the same sandbox instance (the same
+shell invocation), so a later `kill <pid>` from another command is denied, and
+harness task-stop facilities have proven unreliable for tasks started inside
+subagents. Instead, start the server through this **watchdog wrapper**, as a
+single shell command run **as a background task**:
+
+```sh
+rm -f sandbox/e2e/.stop-sandbox
+npm run sandbox &
+elapsed=0
+while [ ! -f sandbox/e2e/.stop-sandbox ] && [ "$elapsed" -lt 1800 ]; do
+  sleep 1
+  elapsed=$((elapsed + 1))
+done
+rm -f sandbox/e2e/.stop-sandbox
+kill 0
+```
+
+The wrapper starts the dev server and then waits for the sentinel file
+`sandbox/e2e/.stop-sandbox` to appear. Creating that file (Step 10) makes the
+wrapper send a signal to its own process group with `kill 0`, which takes down
+the whole `npm → npm → vite` chain at once and is permitted because the signal
+never leaves the sandbox instance. The 1800-second cap is a safety net so the
+server cannot outlive a run that forgot to clean up. The sentinel file is
+transient — the wrapper deletes it itself; never commit it.
+
+Read the task output to get the URL — normally `http://localhost:5173/`, but
+Vite picks another port if 5173 is busy.
 
 ### Step 3 — Open the app
 
@@ -219,8 +247,16 @@ async () => {
 ### Step 10 — Clean up
 
 1. Close the browser page with `browser_close`.
-2. Stop the background dev-server task (e.g. with the harness's task-stop
-   facility). If you started it in a foreground terminal instead, press
+2. Stop the dev server by creating the sentinel file:
+
+   ```sh
+   touch sandbox/e2e/.stop-sandbox
+   ```
+
+   Within a second or two the watchdog from Step 2 kills the server's process
+   group and exits; a signal-terminated exit status for the background task is
+   expected. To be sure, confirm the dev-server URL no longer responds.
+   If you started the server in a foreground terminal instead (humans), press
    `q` then `Enter`, or `Ctrl+C`.
 
 ## Pass Criteria
@@ -243,7 +279,13 @@ The smoke test passes when all of the following held:
 - **Span-list values look wrong after a framework change** — you probably
   forgot Step 1; the sandbox serves the framework from `dist/`.
 - **Dev server URL is not 5173** — another process holds the port; use the
-  URL printed in the server output.
+  URL printed in the server output. A leftover server from a previous run that
+  was not stopped may be the culprit; it cannot be killed from inside the
+  sandbox, so ask the user to stop it (`lsof -i :5173` shows the PID).
+- **Server keeps running after touching the sentinel** — the watchdog from
+  Step 2 probably died earlier (check the background task output). The server
+  cannot be signalled from another sandboxed command; ask the user to kill it
+  from a regular terminal.
 - **`browser_file_upload` rejects the path** — the file must live inside the
   project directory (see Test Fixture above).
 - **Snapshot shows the welcome screen after upload** — the file chooser was
