@@ -96,6 +96,7 @@ sandbox/node_modules/
 sandbox/dist/
 .idea/
 .playwright-mcp/
+sandbox/e2e/.stop-sandbox
 *.local.md
 .claude/worktrees/
 
