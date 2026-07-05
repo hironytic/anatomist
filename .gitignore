@@ -64,6 +64,7 @@ dist/
 sandbox/node_modules/
 sandbox/dist/
 .idea/
+.playwright-mcp/
 *.local.md
 .claude/worktrees/
 
